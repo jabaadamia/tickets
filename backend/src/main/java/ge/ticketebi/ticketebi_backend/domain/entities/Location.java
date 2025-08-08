@@ -1,4 +1,4 @@
-package ge.ticketebi.ticketebi_backend.entities;
+package ge.ticketebi.ticketebi_backend.domain.entities;
 
 import jakarta.persistence.*;
 
