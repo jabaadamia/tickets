@@ -1,9 +1,12 @@
 package ge.ticketebi.ticketebi_backend.services;
 
-import ge.ticketebi.ticketebi_backend.domain.entities.CategoryEntity;
+import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
+
+import java.util.List;
 
 public interface CategoryService {
-
-    CategoryEntity createCategory(CategoryEntity category);
-
+    List<CategoryDto> getCategories();
+    CategoryDto getCategoryByName(String name);
+    CategoryDto createCategory(CategoryDto category);
+    void deleteCategory(String name);
 }

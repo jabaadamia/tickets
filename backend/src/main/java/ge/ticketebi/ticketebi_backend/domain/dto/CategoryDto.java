@@ -16,6 +16,5 @@ import java.util.Set;
 public class CategoryDto {
 
     private String name;
-    private Set<Event> events = new HashSet<>();
 
 }
