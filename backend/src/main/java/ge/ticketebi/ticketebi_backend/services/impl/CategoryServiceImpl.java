@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.services.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.CategoryEntity;
+import ge.ticketebi.ticketebi_backend.exceptions.CategoryNotFoundException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.CategoryRepository;
 import ge.ticketebi.ticketebi_backend.services.CategoryService;
@@ -34,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getCategoryByName(String name) {
         CategoryEntity entity = categoryRepository.findById(name)
-                .orElseThrow(() -> new RuntimeException("Category not found")); // TODO create custom exception
+                .orElseThrow(() -> new CategoryNotFoundException("Category with name " + name + " not found"));
         return categoryMapper.mapTo(entity);
 
     }
@@ -49,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(String name) {
         CategoryEntity category = categoryRepository.findById(name)
-                .orElseThrow(() -> new RuntimeException("Category not found")); // TODO create custom exception
+                .orElseThrow(() -> new CategoryNotFoundException("Category with name " + name + " not found"));
         categoryRepository.delete(category);
     }
 }
