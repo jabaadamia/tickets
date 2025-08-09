@@ -39,7 +39,7 @@ public class Event {
     @JoinTable(
             name = "event_categories",
             joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_name")
+            inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private Set<CategoryEntity> categories = new HashSet<>();
 

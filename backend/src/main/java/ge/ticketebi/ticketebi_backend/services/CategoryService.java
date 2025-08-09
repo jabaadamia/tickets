@@ -9,4 +9,5 @@ public interface CategoryService {
     CategoryDto getCategoryByName(String name);
     CategoryDto createCategory(CategoryDto category);
     void deleteCategory(String name);
+    CategoryDto updateCategory(String name, CategoryDto categoryDto);
 }
