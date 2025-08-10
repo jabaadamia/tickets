@@ -31,7 +31,7 @@ public class User {
     private Role role;
 
     @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Event> events = new ArrayList<>();
+    private List<EventEntity> events = new ArrayList<>();
 
     public Long getId() {
         return id;
