@@ -1,11 +1,10 @@
 package ge.ticketebi.ticketebi_backend.controllers;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
-import ge.ticketebi.ticketebi_backend.domain.entities.CategoryEntity;
-import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.services.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,18 +31,21 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto dto) {
         CategoryDto created = categoryService.createCategory(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{name}")
     public ResponseEntity<Void> deleteCategory(@PathVariable String name) {
         categoryService.deleteCategory(name);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{name}")
     public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable String name,

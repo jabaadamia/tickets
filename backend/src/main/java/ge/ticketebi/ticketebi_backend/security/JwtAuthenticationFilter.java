@@ -52,8 +52,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/auth/login",
                 "/auth/refresh-token",
                 "/health",
-                "/api/categories",
-                "/api/locations"
         };
 
         String path = request.getRequestURI();
