@@ -7,6 +7,7 @@ import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
 
 public interface AuthService {
     AuthResponseDto register(RegisterRequestDto request);
+    AuthResponseDto registerAsOrganizer(RegisterRequestDto request);
     AuthResponseDto login(LoginRequestDto request);
     void logout (RefreshTokenRequestDto request, String username);
     AuthResponseDto refreshToken(RefreshTokenRequestDto request);

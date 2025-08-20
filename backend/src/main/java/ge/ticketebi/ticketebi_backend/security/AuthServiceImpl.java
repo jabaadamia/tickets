@@ -49,6 +49,24 @@ public class AuthServiceImpl implements AuthService{
         return new AuthResponseDto(accessToken, refreshToken);
     }
 
+    @Override
+    public AuthResponseDto registerAsOrganizer(RegisterRequestDto request) {
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .enabled(true)
+                .role(Role.ORGANIZER)
+                .build();
+
+        userRepository.save(user);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return new AuthResponseDto(accessToken, refreshToken);
+    }
+
     public AuthResponseDto login(LoginRequestDto request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

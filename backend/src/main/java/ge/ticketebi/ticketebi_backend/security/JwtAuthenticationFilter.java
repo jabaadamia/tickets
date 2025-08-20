@@ -49,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // list of paths to ignore
         String[] publicEndpoints = {
                 "/auth/register",
+                "/auth/register-organizer",
                 "/auth/login",
                 "/auth/refresh-token",
                 "/health",

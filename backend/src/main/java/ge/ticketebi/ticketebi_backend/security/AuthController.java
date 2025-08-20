@@ -24,6 +24,12 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/register-organizer")
+    public ResponseEntity<AuthResponseDto> registerAsOrganizer(@RequestBody RegisterRequestDto request) {
+        AuthResponseDto response = authService.registerAsOrganizer(request);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
         AuthResponseDto response = authService.login(request);
