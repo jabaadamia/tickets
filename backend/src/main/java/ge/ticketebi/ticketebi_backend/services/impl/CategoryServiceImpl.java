@@ -2,7 +2,7 @@ package ge.ticketebi.ticketebi_backend.services.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.CategoryEntity;
-import ge.ticketebi.ticketebi_backend.exceptions.CategoryNotFoundException;
+import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.CategoryRepository;
 import ge.ticketebi.ticketebi_backend.services.CategoryService;
@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getCategoryByName(String name) {
         CategoryEntity entity = categoryRepository.findByName(name)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with name " + name + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category with name " + name + " not found"));
         return categoryMapper.mapTo(entity);
 
     }
@@ -50,14 +50,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(String name) {
         CategoryEntity category = categoryRepository.findByName(name)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with name " + name + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category with name " + name + " not found"));
         categoryRepository.delete(category);
     }
 
     @Override
     public CategoryDto updateCategory(String name, CategoryDto categoryDto) {
         CategoryEntity prev = categoryRepository.findByName(name)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with name " + name + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category with name " + name + " not found"));
         prev.setName(categoryDto.getName());
         CategoryEntity updated = categoryRepository.save(prev);
         return categoryMapper.mapTo(updated);

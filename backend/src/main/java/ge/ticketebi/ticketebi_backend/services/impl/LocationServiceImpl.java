@@ -2,7 +2,7 @@ package ge.ticketebi.ticketebi_backend.services.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.LocationDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.LocationEntity;
-import ge.ticketebi.ticketebi_backend.exceptions.LocationNotFoundException;
+import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.LocationRepository;
 import ge.ticketebi.ticketebi_backend.services.LocationService;
@@ -35,7 +35,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationDto getLocationByName(String name) {
         LocationEntity entity = locationRepository.findByName(name)
-                .orElseThrow(() -> new LocationNotFoundException("Location with name " + name + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Location with name " + name + " not found"));
         return locationMapper.mapTo(entity);
     }
 
@@ -49,14 +49,14 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public void deleteLocation(String name) {
         LocationEntity location = locationRepository.findByName(name)
-                .orElseThrow(() -> new LocationNotFoundException("Location with name " + name + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Location with name " + name + " not found"));
         locationRepository.delete(location);
     }
 
     @Override
     public LocationDto updateLocation(String name, LocationDto locationDto) {
         LocationEntity prev = locationRepository.findByName(name)
-                .orElseThrow(() -> new LocationNotFoundException("Location with name" + name + "not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Location with name" + name + "not found"));
         prev.setName(locationDto.getName());
         LocationEntity updated = locationRepository.save(prev);
         return locationMapper.mapTo(updated);

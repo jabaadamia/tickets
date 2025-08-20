@@ -7,6 +7,8 @@ import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.RefreshToken;
 import ge.ticketebi.ticketebi_backend.domain.entities.Role;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
+import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
+import ge.ticketebi.ticketebi_backend.exceptions.UnauthorizedActionException;
 import ge.ticketebi.ticketebi_backend.repositories.RefreshTokenRepository;
 import ge.ticketebi.ticketebi_backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,10 +71,10 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public void logout(RefreshTokenRequestDto refreshToken, String username) {
         RefreshToken token = refreshTokenRepository.findByTokenAndRevokedFalse(refreshToken.getRefreshToken())
-                .orElseThrow(() -> new RuntimeException("Token not found or revoked"));
+                .orElseThrow(() -> new InvalidRequestException("Token not found or revoked"));
 
         if (!token.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Token does not belong to user");
+            throw new UnauthorizedActionException("Token does not belong to user");
         }
 
         token.setRevoked(true);
@@ -82,10 +84,10 @@ public class AuthServiceImpl implements AuthService{
     public AuthResponseDto refreshToken(RefreshTokenRequestDto request) {
         RefreshToken token = refreshTokenRepository
                 .findByTokenAndRevokedFalse(request.getRefreshToken())
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new InvalidRequestException("Invalid refresh token"));
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            throw new RuntimeException("Refresh token expired");
+            throw new InvalidRequestException("Refresh token expired");
         }
 
         String newAccessToken = jwtService.generateAccessToken(token.getUser());
