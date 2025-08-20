@@ -6,6 +6,7 @@ import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +27,14 @@ public class AuthController {
         AuthResponseDto response = authService.login(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequestDto request,
+                                       Authentication authentication) {
+        authService.logout(request, authentication.getName());
+        return ResponseEntity.ok().build();
+    }
+
 
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequestDto request) {
