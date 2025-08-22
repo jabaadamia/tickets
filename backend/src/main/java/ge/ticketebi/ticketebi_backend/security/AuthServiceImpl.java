@@ -9,6 +9,7 @@ import ge.ticketebi.ticketebi_backend.domain.entities.Role;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.exceptions.UnauthorizedActionException;
+import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.RefreshTokenRepository;
 import ge.ticketebi.ticketebi_backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +32,11 @@ public class AuthServiceImpl implements AuthService{
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticationManager authenticationManager;
+    private final Mapper<User, RegisterRequestDto> userMapper;
 
     public AuthResponseDto register(RegisterRequestDto request) {
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .enabled(true)
-                .role(Role.CUSTOMER)
-                .build();
+        User user = userMapper.mapFrom(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
 
@@ -51,13 +48,9 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public AuthResponseDto registerAsOrganizer(RegisterRequestDto request) {
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .enabled(true)
-                .role(Role.ORGANIZER)
-                .build();
+        User user = userMapper.mapFrom(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.ORGANIZER);
 
         userRepository.save(user);
 
