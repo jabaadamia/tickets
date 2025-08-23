@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.domain.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CategoryDto {
 
-    private Long id;
-
+    @NotBlank(message = "Name must not be empty")
     private String name;
-
 }

@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.services.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.CategoryEntity;
+import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.CategoryRepository;
@@ -42,6 +43,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
+        if(categoryRepository.findByName(categoryDto.getName()).isPresent())
+            throw new InvalidRequestException("Category already exists");
+
         CategoryEntity entity = categoryMapper.mapFrom(categoryDto);
         CategoryEntity saved = categoryRepository.save(entity);
         return categoryMapper.mapTo(saved);

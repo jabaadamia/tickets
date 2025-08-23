@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.controllers;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
 import ge.ticketebi.ticketebi_backend.services.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +34,7 @@ public class CategoryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto dto) {
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody @Valid CategoryDto dto) {
         CategoryDto created = categoryService.createCategory(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -49,7 +50,7 @@ public class CategoryController {
     @PutMapping("/{name}")
     public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable String name,
-            @RequestBody CategoryDto categoryDto
+            @RequestBody @Valid CategoryDto categoryDto
     ) {
         CategoryDto updatedDto = categoryService.updateCategory(name, categoryDto);
         return ResponseEntity.ok(updatedDto);
