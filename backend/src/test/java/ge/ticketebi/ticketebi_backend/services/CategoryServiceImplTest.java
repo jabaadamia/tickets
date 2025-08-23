@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.services;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.CategoryEntity;
+import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.CategoryRepository;
@@ -83,6 +84,16 @@ class CategoryServiceImplTest {
 
         assertThat(result.getName()).isEqualTo("Football");
         verify(categoryRepository).save(categoryEntity);
+    }
+    @Test
+    void createCategory_shouldThrow_whenExists() {
+        when(categoryRepository.findByName("Football")).thenReturn(Optional.ofNullable(categoryEntity));
+
+        assertThatThrownBy(() -> categoryService.createCategory(categoryDto))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Category already exists");
+
+        verify(categoryRepository, never()).save(any());
     }
 
     @Test
