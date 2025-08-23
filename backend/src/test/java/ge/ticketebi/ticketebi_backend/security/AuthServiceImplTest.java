@@ -116,6 +116,32 @@ public class AuthServiceImplTest {
     }
 
     @Test
+    void register_shouldThrow_whenEmailAlreadyExists() {
+        when(userRepository.existsByEmail("test@mail.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.register(registerRequest))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Email already in use");
+
+        assertThatThrownBy(() -> authService.registerAsOrganizer(registerRequest))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Email already in use");
+    }
+
+    @Test
+    void register_shouldThrow_whenUsernameAlreadyExists() {
+        when(userRepository.existsByUsername("testUser")).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.register(registerRequest))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Username already taken");
+
+        assertThatThrownBy(() -> authService.registerAsOrganizer(registerRequest))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Username already taken");
+    }
+
+    @Test
     void login_shouldReturnAuthResponse() {
         when(authentication.getPrincipal()).thenReturn(customerEntity);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
