@@ -4,6 +4,7 @@ import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid RegisterRequestDto request) {
         AuthResponseDto response = authService.register(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register-organizer")
-    public ResponseEntity<AuthResponseDto> registerAsOrganizer(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<AuthResponseDto> registerAsOrganizer(@RequestBody  @Valid RegisterRequestDto request) {
         AuthResponseDto response = authService.registerAsOrganizer(request);
         return ResponseEntity.ok(response);
     }

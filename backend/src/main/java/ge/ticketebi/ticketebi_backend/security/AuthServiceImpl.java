@@ -35,6 +35,12 @@ public class AuthServiceImpl implements AuthService{
     private final Mapper<User, RegisterRequestDto> userMapper;
 
     public AuthResponseDto register(RegisterRequestDto request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new InvalidRequestException("Email already in use");
+        }
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new InvalidRequestException("Username already taken");
+        }
         User user = userMapper.mapFrom(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -48,6 +54,12 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public AuthResponseDto registerAsOrganizer(RegisterRequestDto request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new InvalidRequestException("Email already in use");
+        }
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new InvalidRequestException("Username already taken");
+        }
         User user = userMapper.mapFrom(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.ORGANIZER);
