@@ -21,7 +21,7 @@ public class UserMapperImpl implements Mapper<User, RegisterRequestDto> {
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .password(dto.getPassword()) // encode in service
-                .enabled(true)
+                .enabled(false)
                 .role(Role.CUSTOMER)
                 .build();
     }

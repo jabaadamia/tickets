@@ -34,7 +34,7 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -68,5 +68,10 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 }
