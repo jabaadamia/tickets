@@ -1,6 +1,7 @@
 package ge.ticketebi.ticketebi_backend.controllers;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.CategoryDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.services.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -41,9 +42,9 @@ public class CategoryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{name}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable String name) {
+    public ResponseEntity<MessageResponse> deleteCategory(@PathVariable String name) {
         categoryService.deleteCategory(name);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MessageResponse("Category "+ name + " deleted successfully"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -1,8 +1,8 @@
 package ge.ticketebi.ticketebi_backend.controllers;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.LocationDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.services.LocationService;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,9 +38,9 @@ public class LocationController {
     }
 
     @DeleteMapping("/{name}")
-    public ResponseEntity<Void> deleteLocation(@PathVariable String name) {
+    public ResponseEntity<MessageResponse> deleteLocation(@PathVariable String name) {
         locationService.deleteLocation(name);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MessageResponse("Location " + name + "deleted successfully"));
     }
 
     @PutMapping("/{name}")

@@ -40,7 +40,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequestDto request) {
+    public ResponseEntity<MessageResponse> logout(@RequestBody RefreshTokenRequestDto request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -48,7 +48,7 @@ public class AuthController {
         }
 
         authService.logout(request, authentication.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new MessageResponse("Logged out successfully"));
     }
 
 
