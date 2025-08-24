@@ -48,10 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         // list of paths to ignore
         String[] publicEndpoints = {
-                "/auth/register",
-                "/auth/register-organizer",
-                "/auth/login",
-                "/auth/refresh-token",
+                "/api/auth/register",
+                "/api/auth/register-organizer",
+                "/api/auth/login",
+                "/api/auth/refresh-token",
                 "/health",
         };
 

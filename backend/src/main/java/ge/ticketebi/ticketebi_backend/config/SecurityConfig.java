@@ -39,7 +39,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
-                        .requestMatchers("/auth/**", "/health").permitAll()
+                        .requestMatchers("/api/auth/**", "/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/locations/**").permitAll()
                         // protected endpoints
                         .anyRequest().authenticated()
