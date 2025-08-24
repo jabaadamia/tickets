@@ -34,6 +34,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: ${JWT_SECRET}
+      APP_EMAIL: ${APP_EMAIL}
+      APP_PASSWORD: ${APP_PASSWORD}
     # Production runs JAR
     command: java -jar /app/app.jar
 
