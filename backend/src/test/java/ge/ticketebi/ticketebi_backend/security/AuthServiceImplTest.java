@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
@@ -40,6 +41,7 @@ public class AuthServiceImplTest {
     @Mock private RefreshTokenRepository refreshTokenRepository;
     @Mock private AuthenticationManager authenticationManager;
     @Mock private Authentication authentication;
+    @Mock private VerificationService verificationService;
 
     @InjectMocks private AuthServiceImpl authService;
 
@@ -86,33 +88,40 @@ public class AuthServiceImplTest {
     }
 
     @Test
-    void register_shouldReturnAuthResponse(){
+    void register_shouldSendVerificationEmail() {
+        when(userRepository.existsByEmail("test@mail.com")).thenReturn(false);
+        when(userRepository.existsByUsername("testUser")).thenReturn(false);
         when(userMapper.mapFrom(registerRequest)).thenReturn(customerEntity);
         when(passwordEncoder.encode("testPassword")).thenReturn("encodedPassword");
-        when(userRepository.save(customerEntity)).thenReturn(customerEntity);
-        when(jwtService.generateAccessToken(customerEntity)).thenReturn("someAccessToken");
-        when(jwtService.generateRefreshToken(customerEntity)).thenReturn("someRefreshToken");
+        when(userRepository.save(any(User.class))).thenReturn(customerEntity);
 
-        AuthResponseDto result = authService.register(registerRequest);
+        doNothing().when(verificationService).sendVerification(customerEntity.getEmail());
+
+        MessageResponse result = authService.register(registerRequest);
 
         verify(userRepository).save(customerEntity);
-        assertThat(result.getAccessToken()).isEqualTo("someAccessToken");
-        assertThat(result.getRefreshToken()).isEqualTo("someRefreshToken");
+        verify(verificationService).sendVerification(customerEntity.getEmail());
+
+        assertThat(result.getMessage()).isEqualTo("Registration successful. Please verify your email.");
     }
 
+
     @Test
-    void registerAsOrganiser_shouldReturnAuthResponse(){
+    void registerAsOrganiser_shouldSendVerificationEmail(){
+        when(userRepository.existsByEmail("test@mail.com")).thenReturn(false);
+        when(userRepository.existsByUsername("testUser")).thenReturn(false);
         when(userMapper.mapFrom(registerRequest)).thenReturn(organiserEntity);
         when(passwordEncoder.encode("testPassword")).thenReturn("encodedPassword");
-        when(userRepository.save(organiserEntity)).thenReturn(organiserEntity);
-        when(jwtService.generateAccessToken(organiserEntity)).thenReturn("someAccessToken");
-        when(jwtService.generateRefreshToken(organiserEntity)).thenReturn("someRefreshToken");
+        when(userRepository.save(any(User.class))).thenReturn(organiserEntity);
 
-        AuthResponseDto result = authService.register(registerRequest);
+        doNothing().when(verificationService).sendVerification(organiserEntity.getEmail());
+
+        MessageResponse result = authService.register(registerRequest);
 
         verify(userRepository).save(organiserEntity);
-        assertThat(result.getAccessToken()).isEqualTo("someAccessToken");
-        assertThat(result.getRefreshToken()).isEqualTo("someRefreshToken");
+        verify(verificationService).sendVerification(organiserEntity.getEmail());
+
+        assertThat(result.getMessage()).isEqualTo("Registration successful. Please verify your email.");
     }
 
     @Test
@@ -159,6 +168,22 @@ public class AuthServiceImplTest {
         verify(jwtService).generateRefreshToken(customerEntity);
         verify(refreshTokenRepository).revokeAllForUser(customerEntity.getId());
     }
+
+    @Test
+    void login_shouldThrowException_whenUserNotEnabled() {
+        customerEntity.setEnabled(false);
+
+        when(authentication.getPrincipal()).thenReturn(customerEntity);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+
+        assertThatThrownBy(() -> authService.login(loginRequest))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessage("Please verify your email before logging in");
+
+        verifyNoInteractions(jwtService, refreshTokenRepository);
+    }
+
 
     @Test
     void login_shouldThrowException_whenAuthenticationFails() {
