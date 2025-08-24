@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
@@ -33,8 +34,9 @@ public class AuthServiceImpl implements AuthService{
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticationManager authenticationManager;
     private final Mapper<User, RegisterRequestDto> userMapper;
+    private final VerificationService verificationService;
 
-    public AuthResponseDto register(RegisterRequestDto request) {
+    public MessageResponse register(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new InvalidRequestException("Email already in use");
         }
@@ -46,14 +48,13 @@ public class AuthServiceImpl implements AuthService{
 
         userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        verificationService.sendVerification(request.getEmail());
 
-        return new AuthResponseDto(accessToken, refreshToken);
+        return new MessageResponse("Registration successful. Please verify your email.");
     }
 
     @Override
-    public AuthResponseDto registerAsOrganizer(RegisterRequestDto request) {
+    public MessageResponse registerAsOrganizer(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new InvalidRequestException("Email already in use");
         }
@@ -66,10 +67,9 @@ public class AuthServiceImpl implements AuthService{
 
         userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        verificationService.sendVerification(request.getEmail());
 
-        return new AuthResponseDto(accessToken, refreshToken);
+        return new MessageResponse("Registration successful. Please verify your email.");
     }
 
     public AuthResponseDto login(LoginRequestDto request) {
@@ -80,6 +80,9 @@ public class AuthServiceImpl implements AuthService{
                 )
         );
         User user = (User) authentication.getPrincipal();
+
+        if (!user.isEnabled())
+            throw new InvalidRequestException("Please verify your email before logging in");
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);

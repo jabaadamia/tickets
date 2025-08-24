@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
@@ -18,16 +19,17 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final VerificationService verificationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid RegisterRequestDto request) {
-        AuthResponseDto response = authService.register(request);
+    public ResponseEntity<MessageResponse> register(@RequestBody @Valid RegisterRequestDto request) {
+        MessageResponse response = authService.register(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register-organizer")
-    public ResponseEntity<AuthResponseDto> registerAsOrganizer(@RequestBody  @Valid RegisterRequestDto request) {
-        AuthResponseDto response = authService.registerAsOrganizer(request);
+    public ResponseEntity<MessageResponse> registerAsOrganizer(@RequestBody  @Valid RegisterRequestDto request) {
+        MessageResponse response = authService.registerAsOrganizer(request);
         return ResponseEntity.ok(response);
     }
 
@@ -54,5 +56,17 @@ public class AuthController {
     public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequestDto request) {
         AuthResponseDto response = authService.refreshToken(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<MessageResponse> resendVerification(@RequestParam String email) {
+        verificationService.sendVerification(email);
+        return ResponseEntity.ok(new MessageResponse("Verification email resent"));
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<MessageResponse> verify(@RequestParam String token) {
+        verificationService.verify(token);
+        return ResponseEntity.ok(new MessageResponse("Email verified. You can now log in."));
     }
 }
