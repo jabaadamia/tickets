@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.security.jwt.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -54,6 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/api/auth/refresh-token",
                 "/api/auth/verify",
                 "/api/auth/resend-verification",
+                "/login/oauth2",
+                "/oauth2",
                 "/health",
         };
 

@@ -1,6 +1,9 @@
 package ge.ticketebi.ticketebi_backend.config;
 
-import ge.ticketebi.ticketebi_backend.security.JwtAuthenticationFilter;
+import ge.ticketebi.ticketebi_backend.security.*;
+import ge.ticketebi.ticketebi_backend.security.oauth2.CustomOidcUserService;
+import ge.ticketebi.ticketebi_backend.security.oauth2.OAuth2LoginFailureHandler;
+import ge.ticketebi.ticketebi_backend.security.oauth2.OAuth2LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomOidcUserService customOidcUserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,10 +45,28 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
-                        .requestMatchers("/api/auth/**", "/health").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/health",
+                                "/oauth2/**",
+                                "/login/oauth2/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/locations/**").permitAll()
                         // protected endpoints
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(authz -> authz
+                                .baseUri("/oauth2/authorization")
+                        )
+                        .redirectionEndpoint(redir -> redir
+                                .baseUri("/login/oauth2/code/*")
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOidcUserService)
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler(oAuth2LoginFailureHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
