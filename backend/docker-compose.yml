@@ -36,6 +36,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       APP_EMAIL: ${APP_EMAIL}
       APP_PASSWORD: ${APP_PASSWORD}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     # Production runs JAR
     command: java -jar /app/app.jar
 
