@@ -1,6 +1,7 @@
 package ge.ticketebi.ticketebi_backend.mappers.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
+import ge.ticketebi.ticketebi_backend.domain.entities.AuthProvider;
 import ge.ticketebi.ticketebi_backend.domain.entities.Role;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
@@ -23,6 +24,7 @@ public class UserMapperImpl implements Mapper<User, RegisterRequestDto> {
                 .password(dto.getPassword()) // encode in service
                 .enabled(false)
                 .role(Role.CUSTOMER)
+                .authProvider(AuthProvider.LOCAL)
                 .build();
     }
 
