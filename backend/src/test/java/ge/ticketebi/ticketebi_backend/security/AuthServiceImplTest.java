@@ -13,6 +13,8 @@ import ge.ticketebi.ticketebi_backend.exceptions.UnauthorizedActionException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.RefreshTokenRepository;
 import ge.ticketebi.ticketebi_backend.repositories.UserRepository;
+import ge.ticketebi.ticketebi_backend.security.jwt.JwtService;
+import ge.ticketebi.ticketebi_backend.security.verification.VerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.security.jwt.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.junit.jupiter.api.BeforeEach;

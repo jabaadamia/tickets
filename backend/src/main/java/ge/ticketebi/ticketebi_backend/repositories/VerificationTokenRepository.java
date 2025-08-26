@@ -1,4 +1,4 @@
-package ge.ticketebi.ticketebi_backend.security;
+package ge.ticketebi.ticketebi_backend.repositories;
 
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.domain.entities.VerificationToken;

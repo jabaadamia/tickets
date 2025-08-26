@@ -1,10 +1,11 @@
-package ge.ticketebi.ticketebi_backend.security;
+package ge.ticketebi.ticketebi_backend.security.verification;
 
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.domain.entities.VerificationToken;
 import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.repositories.UserRepository;
+import ge.ticketebi.ticketebi_backend.repositories.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.security.verification.MailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

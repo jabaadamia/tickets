@@ -1,4 +1,4 @@
-package ge.ticketebi.ticketebi_backend.security;
+package ge.ticketebi.ticketebi_backend.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;

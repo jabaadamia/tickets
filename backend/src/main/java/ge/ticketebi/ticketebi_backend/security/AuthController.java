@@ -5,6 +5,7 @@ import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
+import ge.ticketebi.ticketebi_backend.security.verification.VerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

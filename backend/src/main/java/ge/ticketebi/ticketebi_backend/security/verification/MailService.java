@@ -1,4 +1,4 @@
-package ge.ticketebi.ticketebi_backend.security;
+package ge.ticketebi.ticketebi_backend.security.verification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
