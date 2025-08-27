@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LocationMapperImpl implements Mapper<LocationEntity, LocationDto>  {
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     public LocationMapperImpl(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
