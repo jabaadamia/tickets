@@ -1,17 +1,13 @@
 package ge.ticketebi.ticketebi_backend.services;
 
-import ge.ticketebi.ticketebi_backend.domain.dto.UserRequestDto;
-import ge.ticketebi.ticketebi_backend.domain.dto.UserResponseDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
+import ge.ticketebi.ticketebi_backend.domain.dto.UserDto;
+import ge.ticketebi.ticketebi_backend.domain.entities.User;
 
 import java.util.List;
 
 public interface UserService {
-    UserResponseDto registerUser(UserRequestDto dto);
-    UserResponseDto getCurrentUser();
-    UserResponseDto getUserById(Long id);
-    UserResponseDto updateUser(Long id, UserRequestDto dto);
-    List<UserResponseDto> getAllUsers();
-    void enableUser(Long id);
-    void disableUser(Long id);
-    void deleteUser(Long id);
+    UserDto me(User user);
+    UserDto updateUser(UserDto dto, User user);
+    MessageResponse deleteUser(User user);
 }

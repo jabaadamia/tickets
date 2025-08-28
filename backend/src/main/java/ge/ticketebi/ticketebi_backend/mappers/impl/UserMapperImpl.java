@@ -1,56 +1,35 @@
 package ge.ticketebi.ticketebi_backend.mappers.impl;
 
-import ge.ticketebi.ticketebi_backend.domain.dto.UserRequestDto;
-import ge.ticketebi.ticketebi_backend.domain.dto.UserResponseDto;
-import ge.ticketebi.ticketebi_backend.domain.entities.AuthProvider;
-import ge.ticketebi.ticketebi_backend.domain.entities.Role;
+import ge.ticketebi.ticketebi_backend.domain.dto.UserDto;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapperImpl implements Mapper<User, UserRequestDto> {
+public class UserMapperImpl implements Mapper<User, UserDto> {
 
-    private final ModelMapper modelMapper;
-
-    public UserMapperImpl(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
-    /**
-     * Map from UserRequestDto to User entity.
-     * Some fields (password encoding, role, enabled, authProvider) are set manually.
-     */
     @Override
-    public User mapFrom(UserRequestDto dto) {
-        if (dto == null) return null;
-
-        User user = modelMapper.map(dto, User.class);
-        user.setPassword(dto.getPassword()); // encode in service
-        user.setEnabled(false);
-        user.setRole(Role.CUSTOMER);
-        user.setAuthProvider(AuthProvider.LOCAL);
-
-        return user;
+    public UserDto mapTo(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
-    /**
-     * This satisfies the Mapper interface: User → UserRequestDto.
-     * Mainly used internally or to satisfy the compiler.
-     */
     @Override
-    public UserRequestDto mapTo(User user) {
-        if (user == null) return null;
-        return modelMapper.map(user, UserRequestDto.class);
-    }
-
-    /**
-     * Real method for API responses: User → UserResponseDto.
-     */
-    public UserResponseDto mapToResponse(User user) {
-        if (user == null) return null;
-        return modelMapper.map(user, UserResponseDto.class);
+    public User mapFrom(UserDto userDto) {
+        return User.builder()
+                .id(userDto.getId())
+                .username(userDto.getUsername())
+                .email(userDto.getEmail())
+                .phoneNumber(userDto.getPhoneNumber())
+                .role(userDto.getRole())
+                .createdAt(userDto.getCreatedAt())
+                .build();
     }
 
 }
