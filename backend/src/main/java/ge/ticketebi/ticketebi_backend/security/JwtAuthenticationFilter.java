@@ -1,5 +1,6 @@
 package ge.ticketebi.ticketebi_backend.security;
 
+import ge.ticketebi.ticketebi_backend.config.PublicEndpointsConfig;
 import ge.ticketebi.ticketebi_backend.security.jwt.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -47,27 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // list of paths to ignore
-        String[] publicEndpoints = {
-                "/api/auth/register",
-                "/api/auth/register-organizer",
-                "/api/auth/login",
-                "/api/auth/refresh-token",
-                "/api/auth/verify",
-                "/api/auth/resend-verification",
-                "/login/oauth2",
-                "/oauth2",
-                "/health",
-        };
-
         String path = request.getRequestURI();
-
-        for (String endpoint : publicEndpoints) {
-            if (path.startsWith(endpoint)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(PublicEndpointsConfig.PUBLIC_ENDPOINTS)
+                .anyMatch(path::startsWith);
     }
 }
 
