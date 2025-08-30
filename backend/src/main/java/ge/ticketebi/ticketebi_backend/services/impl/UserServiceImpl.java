@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.services.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.domain.dto.UserDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.UserUpdateRequest;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
@@ -25,12 +26,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, User user) {
-        if(userRepository.existsByUsername(userDto.getUsername()))
+    public UserDto updateUser(UserUpdateRequest userUpdateRequest, User user) {
+        if(userRepository.existsByUsername(userUpdateRequest.getUsername()))
             throw new InvalidRequestException("username already exists");
 
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setUsername(userDto.getUsername());
+        if(userUpdateRequest.getPhoneNumber() != null)
+            user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+        if(userUpdateRequest.getUsername() != null)
+            user.setUsername(userUpdateRequest.getUsername());
+
         userRepository.save(user);
         return userMapper.mapTo(user);
     }

@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.controllers;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
 import ge.ticketebi.ticketebi_backend.domain.dto.UserDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.UserUpdateRequest;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.services.UserService;
 import jakarta.validation.Valid;
@@ -23,12 +24,12 @@ public class UserController {
         return ResponseEntity.ok(userService.me(user));
     }
 
-    @PutMapping("/update")
+    @PatchMapping("/update")
     public ResponseEntity<UserDto> update(
-            @RequestBody @Valid UserDto userDto,
+            @RequestBody @Valid UserUpdateRequest userUpdateRequest,
             @AuthenticationPrincipal User user
             ) {
-        return ResponseEntity.ok(userService.updateUser(userDto, user));
+        return ResponseEntity.ok(userService.updateUser(userUpdateRequest, user));
     }
 
     @DeleteMapping("/delete")
