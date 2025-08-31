@@ -8,6 +8,7 @@ public class PublicEndpointsConfig {
             "/api/auth/**",
             "/oauth2/**",
             "/login/oauth2/**",
+            "/events/**", // thumbnails
             "/health",
             "/api/docs/**",
             "/api/swagger/**",

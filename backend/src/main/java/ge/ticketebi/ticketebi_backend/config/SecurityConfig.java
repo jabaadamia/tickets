@@ -46,7 +46,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
                         .requestMatchers(PublicEndpointsConfig.PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**", "/api/locations/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/categories/**",
+                                "/api/locations/**",
+                                "api/events/**"
+                        ).permitAll()
                         // protected endpoints
                         .anyRequest().authenticated()
                 )
