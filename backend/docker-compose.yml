@@ -38,6 +38,8 @@ services:
       APP_PASSWORD: ${APP_PASSWORD}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    volumes:
+      - ./uploads:/app/upload
     # Production runs JAR
     command: java -jar /app/app.jar
 
