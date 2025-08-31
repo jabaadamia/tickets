@@ -61,4 +61,6 @@ public class EventEntity {
     @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 }
