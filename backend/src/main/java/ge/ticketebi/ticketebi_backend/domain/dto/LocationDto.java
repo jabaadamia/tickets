@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LocationDto {
 
-    private Long id;
-
     @NotBlank(message = "location name is required")
     private String name;
 
