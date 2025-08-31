@@ -27,4 +27,17 @@ public class CategoryEntity {
     @ManyToMany(mappedBy = "categories")
     private Set<EventEntity> events = new HashSet<>();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof CategoryEntity other)) return false;
+
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
