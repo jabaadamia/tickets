@@ -24,5 +24,5 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
             "LEFT JOIN FETCH e.location " +
             "LEFT JOIN FETCH e.organizer " +
             "WHERE e.deleted = false AND e.organizer = :organizer")
-    List<EventEntity> findByOrganiserWithDetails(@Param("organizer") User organizer);
+    List<EventEntity> findByOrganizerWithDetails(@Param("organizer") User organizer);
 }

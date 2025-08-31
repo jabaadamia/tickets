@@ -40,6 +40,7 @@ public class EventMapperImpl implements ReqResMapper<EventEntity, EventRequest, 
     @Override
     public EventResponse toResponseDto(EventEntity eventEntity) {
         EventResponse eventResponse = new EventResponse();
+        eventResponse.setId(eventEntity.getId());
         eventResponse.setTitle(eventEntity.getTitle());
         eventResponse.setDescription(eventEntity.getDescription());
         eventResponse.setCreatedAt(eventEntity.getCreatedAt());

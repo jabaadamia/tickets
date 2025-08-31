@@ -71,7 +71,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponse> myEvents(User organizer) {
-        return eventRepository.findByOrganiserWithDetails(organizer)
+        return eventRepository.findByOrganizerWithDetails(organizer)
                 .stream()
                 .map(eventMapper::toResponseDto)
                 .collect(Collectors.toList());
