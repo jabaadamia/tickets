@@ -2,6 +2,7 @@ package ge.ticketebi.ticketebi_backend.services;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.*;
 import ge.ticketebi.ticketebi_backend.domain.entities.*;
+import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.exceptions.UnauthorizedActionException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
@@ -15,8 +16,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +41,6 @@ public class EventServiceImplTest {
     @Mock private CategoryRepository categoryRepository;
     @Mock private LocationRepository locationRepository;
     @Mock private ReqResMapper<EventEntity, EventRequest, EventResponse> eventMapper;
-    @Mock private Mapper<CategoryEntity, CategoryDto> categoryMapper;
     @Mock private Mapper<LocationEntity, LocationDto> locationMapper;
 
     @InjectMocks private EventServiceImpl eventService;
@@ -276,40 +283,240 @@ public class EventServiceImplTest {
         verify(eventRepository, never()).save(any());
     }
 
+    @Test
     void updateEvent_shouldUpdateFields_whenOrganizerIsAllowed() {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
 
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+        when(locationRepository.findByName(locationDto.getName())).thenReturn(Optional.of(locationEntity));
+        when(categoryRepository.findByName(categoryDto.getName())).thenReturn(Optional.of(categoryEntity));
+        when(eventRepository.save(eventEntity)).thenReturn(eventEntity);
+        when(eventMapper.toResponseDto(eventEntity)).thenReturn(eventResponse);
+
+        EventResponse result = eventService.updateEvent(eventEntity.getId(), eventUpdateRequest, organizer);
+
+        assertThat(result).isEqualTo(eventResponse);
+        assertThat(eventEntity.getTitle()).isEqualTo(eventUpdateRequest.getTitle());
+        assertThat(eventEntity.getDescription()).isEqualTo(eventUpdateRequest.getDescription());
+        assertThat(eventEntity.getDate()).isEqualTo(eventUpdateRequest.getDate());
+
+        verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+        verify(eventRepository).save(eventEntity);
+        verify(eventMapper).toResponseDto(eventEntity);
     }
 
+    @Test
     void updateEvent_shouldThrow_whenEventNotFound() {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
 
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> eventService.updateEvent(eventEntity.getId(), eventUpdateRequest, organizer))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("event not found");
+
+        verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+        verify(eventRepository, never()).save(any());
     }
 
+    @Test
     void updateEvent_shouldThrow_whenUnauthorized() {
+        User anotherUser = new User();
+        anotherUser.setId(2L);
+        anotherUser.setRole(Role.ORGANIZER);
 
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+
+        assertThatThrownBy(() -> eventService.updateEvent(eventEntity.getId(), eventUpdateRequest, anotherUser))
+                .isInstanceOf(UnauthorizedActionException.class)
+                .hasMessageContaining("You are not allowed to perform update");
+
+        verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+        verify(eventRepository, never()).save(any());
     }
 
+    @Test
     void updateEvent_shouldUpdateLocation_whenProvided() {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
 
+        LocationEntity newLocation = LocationEntity.builder()
+                .id(2L)
+                .name("New Hall")
+                .address("New Street 5")
+                .city("Kutaisi")
+                .latitude(42.25)
+                .longitude(42.70)
+                .build();
+
+        LocationDto newLocationDto = LocationDto.builder()
+                .name("New Hall")
+                .address("New Street 5")
+                .city("Kutaisi")
+                .latitude(42.25)
+                .longitude(42.70)
+                .build();
+
+        EventUpdateRequest updateRequest = EventUpdateRequest.builder()
+                .location(newLocationDto)
+                .build();
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+        when(locationRepository.findByName(anyString())).thenReturn(Optional.empty());
+        when(locationMapper.mapFrom(newLocationDto)).thenReturn(newLocation);
+        when(locationRepository.save(newLocation)).thenReturn(newLocation);
+        when(eventRepository.save(eventEntity)).thenReturn(eventEntity);
+        when(eventMapper.toResponseDto(eventEntity)).thenReturn(eventResponse);
+
+        EventResponse result = eventService.updateEvent(eventEntity.getId(), updateRequest, organizer);
+
+        assertThat(result).isEqualTo(eventResponse);
+        assertThat(eventEntity.getLocation()).isEqualTo(newLocation);
+
+        verify(locationRepository).findByName(newLocationDto.getName());
+        verify(locationMapper).mapFrom(any(LocationDto.class));
+        verify(locationRepository).save(newLocation);
+        verify(eventRepository).save(eventEntity);
     }
 
+
+    @Test
     void updateEvent_shouldUpdateCategories_whenProvided() {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
 
+        CategoryDto newCategoryDto = CategoryDto.builder().name("Sports").build();
+        CategoryEntity newCategoryEntity = CategoryEntity.builder().id(2L).name("Sports").build();
+
+        EventUpdateRequest updateRequest = EventUpdateRequest.builder()
+                .categories(Set.of(newCategoryDto))
+                .build();
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+        when(categoryRepository.findByName("Sports")).thenReturn(Optional.of(newCategoryEntity));
+        when(eventRepository.save(eventEntity)).thenReturn(eventEntity);
+        when(eventMapper.toResponseDto(eventEntity)).thenReturn(eventResponse);
+
+        EventResponse result = eventService.updateEvent(eventEntity.getId(), updateRequest, organizer);
+
+        assertThat(result).isEqualTo(eventResponse);
+        assertThat(eventEntity.getCategories()).contains(newCategoryEntity);
+
+        verify(categoryRepository).findByName("Sports");
+        verify(eventRepository).save(eventEntity);
     }
 
-    void uploadThumbnail_shouldSaveFileAndReturnUrl_whenOrganizerIsAllowed() {
+    @Test
+    void uploadThumbnail_shouldSaveFileAndReturnUrl_whenOrganizerIsAllowed() throws Exception {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
 
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.png", "image/png", "dummy".getBytes());
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+        when(eventRepository.save(eventEntity)).thenReturn(eventEntity);
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.createDirectories(any(Path.class))).thenReturn(null);
+            filesMock.when(() -> Files.copy(any(InputStream.class), any(Path.class), any(CopyOption.class)))
+                    .thenReturn(1L);
+
+            MessageResponse result = eventService.uploadThumbnail(eventEntity.getId(), file, organizer);
+
+            assertThat(result.getMessage()).contains("/events/" + eventEntity.getId() + "/");
+            assertThat(eventEntity.getThumbnailUrl()).contains("/events/" + eventEntity.getId() + "/");
+
+            verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+            verify(eventRepository).save(eventEntity);
+        }
     }
 
+
+    @Test
     void uploadThumbnail_shouldThrow_whenFileIsEmpty() {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
 
+        MultipartFile emptyFile = new MockMultipartFile("file", new byte[0]);
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+
+        assertThatThrownBy(() -> eventService.uploadThumbnail(eventEntity.getId(), emptyFile, organizer))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessageContaining("File is empty");
+
+        verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+        verify(eventRepository, never()).save(any());
     }
 
+    @Test
     void uploadThumbnail_shouldThrow_whenEventNotFound() {
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
 
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.png", "image/png", "dummy".getBytes());
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> eventService.uploadThumbnail(eventEntity.getId(), file, organizer))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Event not found");
+
+        verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+        verify(eventRepository, never()).save(any());
     }
 
+    @Test
     void uploadThumbnail_shouldThrow_whenUnauthorized() {
+        User anotherUser = new User();
+        anotherUser.setId(2L);
+        anotherUser.setRole(Role.ORGANIZER);
 
+        User organizer = new User();
+        organizer.setId(1L);
+        organizer.setRole(Role.ORGANIZER);
+        eventEntity.setOrganizer(organizer);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.png", "image/png", "dummy".getBytes());
+
+        when(eventRepository.findByIdAndDeletedFalse(eventEntity.getId()))
+                .thenReturn(Optional.of(eventEntity));
+
+        assertThatThrownBy(() -> eventService.uploadThumbnail(eventEntity.getId(), file, anotherUser))
+                .isInstanceOf(UnauthorizedActionException.class)
+                .hasMessageContaining("You are not allowed to update this event");
+
+        verify(eventRepository).findByIdAndDeletedFalse(eventEntity.getId());
+        verify(eventRepository, never()).save(any());
     }
-
 }
