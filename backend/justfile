@@ -1,4 +1,4 @@
-# set shell := ["powershell.exe", "-c"]
+set shell := ["powershell.exe", "-c"]
 
 # Default command: help lists commands
 default: help
