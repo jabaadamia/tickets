@@ -1,11 +1,9 @@
 package ge.ticketebi.ticketebi_backend.controllers;
 
-import ge.ticketebi.ticketebi_backend.domain.dto.EventRequest;
-import ge.ticketebi.ticketebi_backend.domain.dto.EventResponse;
-import ge.ticketebi.ticketebi_backend.domain.dto.EventUpdateRequest;
-import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
+import ge.ticketebi.ticketebi_backend.domain.dto.*;
 import ge.ticketebi.ticketebi_backend.domain.entities.User;
 import ge.ticketebi.ticketebi_backend.services.EventService;
+import ge.ticketebi.ticketebi_backend.services.TicketTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,14 +21,15 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final TicketTypeService ticketTypeService;
 
     @PreAuthorize("hasRole('ORGANIZER') or hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
             @RequestBody @Valid EventRequest eventRequest,
-            @AuthenticationPrincipal User organiser
+            @AuthenticationPrincipal User organizer
     ) {
-        EventResponse event = eventService.createEvent(eventRequest, organiser);
+        EventResponse event = eventService.createEvent(eventRequest, organizer);
         return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
 
@@ -57,9 +56,9 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteEvent(
             @PathVariable Long id,
-            @AuthenticationPrincipal User organiser
+            @AuthenticationPrincipal User organizer
     ) {
-        MessageResponse response = eventService.deleteEvent(id, organiser);
+        MessageResponse response = eventService.deleteEvent(id, organizer);
         return ResponseEntity.ok(response);
     }
 
@@ -68,9 +67,9 @@ public class EventController {
     public ResponseEntity<EventResponse> updateEvent(
             @PathVariable Long id,
             @RequestBody @Valid EventUpdateRequest updateRequest,
-            @AuthenticationPrincipal User organiser
+            @AuthenticationPrincipal User organizer
     ) {
-        EventResponse updated = eventService.updateEvent(id, updateRequest, organiser);
+        EventResponse updated = eventService.updateEvent(id, updateRequest, organizer);
         return ResponseEntity.ok(updated);
     }
 
@@ -79,9 +78,19 @@ public class EventController {
     public ResponseEntity<MessageResponse> uploadEventThumbnail(
             @PathVariable Long id,
             @RequestParam("image") MultipartFile file,
-            @AuthenticationPrincipal User organiser
+            @AuthenticationPrincipal User organizer
     ) {
-        MessageResponse imageUrl = eventService.uploadThumbnail(id, file, organiser);
+        MessageResponse imageUrl = eventService.uploadThumbnail(id, file, organizer);
         return ResponseEntity.ok(imageUrl);
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER') or hasRole('ADMIN')")
+    @PostMapping("/{id}/ticket-type")
+    public TicketTypeResponse addTicketType(
+            @PathVariable Long id,
+            @Valid @RequestBody TicketTypeRequest ticketTypeRequest,
+            @AuthenticationPrincipal User organizer
+    ) {
+        return ticketTypeService.addTicketType(ticketTypeRequest, id, organizer);
     }
 }
