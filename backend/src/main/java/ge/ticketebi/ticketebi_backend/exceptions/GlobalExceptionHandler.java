@@ -45,6 +45,13 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
+
+        ex.getBindingResult().getGlobalErrors().forEach(error -> {
+            String objectName = error.getObjectName();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(objectName, errorMessage);
+        });
+
         return ResponseEntity.badRequest().body(errors);
     }
 
