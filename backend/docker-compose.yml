@@ -39,7 +39,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     volumes:
-      - ./uploads:/app/upload
+      - ./uploads:/app/uploads
     # Production runs JAR
     command: java -jar /app/app.jar
 
