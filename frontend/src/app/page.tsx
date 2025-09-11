@@ -1,6 +1,6 @@
-import { fetchEvents } from "@/lib/api/events";
+import { fetchEvents } from "@/lib/events";
 import EventCard from "@/components/events/EventCard";
-import { Event } from "@/lib/api/events";
+import { Event } from "@/lib/events";
 
 export default async function HomePage() {
   let events: Event[] = [];

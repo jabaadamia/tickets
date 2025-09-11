@@ -1,5 +1,5 @@
 import React from "react";
-import { Event } from "@/lib/api/events";
+import { Event } from "@/lib/events";
 import { formatDate } from "@/lib/formatters";
 import Category from "@/components/Category";
 

@@ -5,7 +5,8 @@ export default function Navbar() {
     <nav className="text-gray-800 p-4 flex justify-between">
       <Link href="/"><div className="font-bold">TicketPlatform</div></Link>
       <div className="space-x-4">
-        <Link href="/login">Login</Link>
+        <Link href="/auth/register">Register</Link>
+        <Link href="/auth/login">Login</Link>
       </div>
     </nav>
   );
