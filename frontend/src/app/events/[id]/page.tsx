@@ -1,4 +1,4 @@
-import { fetchEventById, Event } from "../../../lib/api/events";
+import { fetchEventById, Event } from "@/lib/api/events";
 import EventDetail from "@/components/events/EventDetail";
 
 interface PageProps {

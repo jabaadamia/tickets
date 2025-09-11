@@ -1,6 +1,5 @@
 const BASE_URL = process.env.API_BASE_URL;
 
-
 export interface Event {
   id: number;
   title: string;
