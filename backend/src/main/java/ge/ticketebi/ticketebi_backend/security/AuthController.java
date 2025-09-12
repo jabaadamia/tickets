@@ -25,13 +25,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<MessageResponse> register(@RequestBody @Valid RegisterRequestDto request) {
         MessageResponse response = authService.register(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/register-organizer")
     public ResponseEntity<MessageResponse> registerAsOrganizer(@RequestBody  @Valid RegisterRequestDto request) {
         MessageResponse response = authService.registerAsOrganizer(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
