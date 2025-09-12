@@ -1,6 +1,6 @@
 import React from "react";
 import { formatDate } from "@/lib/formatters";
-import { Event } from "@/lib/events";
+import { Event } from "@/lib/api/events";
 
 interface EventCardProps {
   event: Event;

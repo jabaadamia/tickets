@@ -1,4 +1,5 @@
-import { fetchEventById, Event } from "@/lib/events";
+import { getEventById } from "@/lib/api/events";
+import { Event } from "@/types";
 import EventDetail from "@/components/events/EventDetail";
 
 interface PageProps {
@@ -7,9 +8,10 @@ interface PageProps {
 
 export default async function EventPage({ params }: PageProps) {
   let event: Event | null = null;
+  const { id } = await params;
 
   try {
-    event = await fetchEventById(Number(params.id));
+    event = await getEventById(id);
   } catch (err) {
     console.error("Failed to fetch event:", err);
   }

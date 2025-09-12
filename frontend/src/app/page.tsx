@@ -1,13 +1,13 @@
-import { fetchEvents } from "@/lib/events";
+import { getEvents } from "@/lib/api/events";
 import EventCard from "@/components/events/EventCard";
-import { Event } from "@/lib/events";
+import { Event } from "@/types";
 
 export default async function HomePage() {
   let events: Event[] = [];
   try {
-    events = await fetchEvents();
-  } catch (err) {
-    console.error("Failed to fetch events:", err);
+    events = await getEvents();
+  } catch (error) {
+    console.error("Failed to fetch events:", error);
   }
 
   return (
