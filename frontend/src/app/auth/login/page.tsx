@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MdEmail } from 'react-icons/md';
 import { FaLock } from 'react-icons/fa';
+import { login } from '@/lib/api/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,16 +13,20 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    setError("");
 
-    if (res.ok) router.push('/');
-    else {
-      const data = await res.json();
-      setError(data.message || 'Login failed');
+    try {
+      const res = await login({ email, password });
+
+      localStorage.setItem("accessToken", res.data.accessToken);
+
+      router.push("/");
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Login failed");
+      }
     }
   };
 

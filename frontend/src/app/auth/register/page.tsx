@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
+import { register } from '@/lib/api/auth';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -19,17 +20,21 @@ export default function RegisterPage() {
       setError("Passwords do not match");
       return;
     }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+    if(RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$").test(password) === false) {
+      setError("Password must contain upper, lower, digit, and special char");
+      return
+    }
 
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
-    });
-
-    if (res.ok) router.push('/auth/login');
-    else {
-      const data = await res.json();
-      setError(data.message || "Something went wrong");
+    const res = await register({ username, email, password });
+    if (res.status === 201) {
+      alert("verification email sent, please verify before logging in");
+      //router.push('/auth/login');
+    } else {
+      setError('Registration failed');
     }
   };
 
