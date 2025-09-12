@@ -1,7 +1,7 @@
 package ge.ticketebi.ticketebi_backend.security;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthTokensDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService{
         return new MessageResponse("Registration successful. Please verify your email.");
     }
 
-    public AuthResponseDto login(LoginRequestDto request) {
+    public AuthTokensDto login(LoginRequestDto request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -93,7 +93,7 @@ public class AuthServiceImpl implements AuthService{
         refreshTokenRepository.revokeAllForUser(user.getId());
         saveRefreshToken(refreshToken, user);
 
-        return new AuthResponseDto(accessToken, refreshToken);
+        return new AuthTokensDto(accessToken, refreshToken);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class AuthServiceImpl implements AuthService{
         refreshTokenRepository.save(token);
     }
 
-    public AuthResponseDto refreshToken(RefreshTokenRequestDto request) {
+    public AuthTokensDto refreshToken(RefreshTokenRequestDto request) {
         RefreshToken token = refreshTokenRepository
                 .findByTokenAndRevokedFalse(request.getRefreshToken())
                 .orElseThrow(() -> new InvalidRequestException("Invalid refresh token"));
@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService{
         }
 
         String newAccessToken = jwtService.generateAccessToken(token.getUser());
-        return new AuthResponseDto(newAccessToken, token.getToken());
+        return new AuthTokensDto(newAccessToken, token.getToken());
     }
 
     private RefreshToken saveRefreshToken(String refreshToken, User user) {

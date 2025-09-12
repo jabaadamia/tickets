@@ -1,18 +1,21 @@
 package ge.ticketebi.ticketebi_backend.security;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.auth.*;
+import ge.ticketebi.ticketebi_backend.exceptions.UnauthorizedActionException;
 import ge.ticketebi.ticketebi_backend.security.verification.VerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,6 +24,8 @@ public class AuthController {
 
     private final AuthService authService;
     private final VerificationService verificationService;
+
+    @Value("${app.security.jwt.refresh-ttl-days}") private long refreshTtlDays;
 
     @PostMapping("/register")
     public ResponseEntity<MessageResponse> register(@RequestBody @Valid RegisterRequestDto request) {
@@ -35,28 +40,77 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
-        AuthResponseDto response = authService.login(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AccessTokenResponseDto> login(@RequestBody LoginRequestDto request) {
+        AuthTokensDto loginResult = authService.login(request);
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", loginResult.getRefreshToken())
+                .httpOnly(true)
+                .secure(false)  // set to true in production
+                .path("/api/auth")
+                .maxAge(TimeUnit.DAYS.toSeconds(refreshTtlDays))
+                .sameSite("Strict")
+                .build();
+        AccessTokenResponseDto response = new AccessTokenResponseDto(loginResult.getAccessToken());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<MessageResponse> logout(@RequestBody RefreshTokenRequestDto request) {
+    public ResponseEntity<MessageResponse> logout(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        authService.logout(request, authentication.getName());
-        return ResponseEntity.ok(new MessageResponse("Logged out successfully"));
+        if (refreshToken != null) {
+            RefreshTokenRequestDto refreshTokenRequestDto = new RefreshTokenRequestDto();
+            refreshTokenRequestDto.setRefreshToken(refreshToken);
+            authService.logout(refreshTokenRequestDto, authentication.getName());
+        }
+
+        ResponseCookie clearCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false) // set to true in production
+                .path("/api/auth")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
+                .body(new MessageResponse("Logged out successfully"));
     }
 
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequestDto request) {
-        AuthResponseDto response = authService.refreshToken(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AccessTokenResponseDto> refreshToken(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken) {
+
+        if (refreshToken == null) {
+            throw new UnauthorizedActionException("Refresh token not found or expired");
+        }
+
+        RefreshTokenRequestDto refreshTokenRequestDto = new RefreshTokenRequestDto();
+        refreshTokenRequestDto.setRefreshToken(refreshToken);
+
+        AuthTokensDto tokens = authService.refreshToken(refreshTokenRequestDto);
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokens.getRefreshToken())
+                .httpOnly(true)
+                .secure(false)  // set to true in production
+                .path("/api/auth")
+                .maxAge(TimeUnit.DAYS.toSeconds(refreshTtlDays))
+                .sameSite("Strict")
+                .build();
+
+        AccessTokenResponseDto response = new AccessTokenResponseDto(tokens.getAccessToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/resend-verification")

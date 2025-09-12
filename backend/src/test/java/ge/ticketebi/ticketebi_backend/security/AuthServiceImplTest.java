@@ -1,7 +1,7 @@
 package ge.ticketebi.ticketebi_backend.security;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthTokensDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
@@ -160,7 +160,7 @@ public class AuthServiceImplTest {
         when(jwtService.generateAccessToken(customerEntity)).thenReturn("someAccessToken");
         when(jwtService.generateRefreshToken(customerEntity)).thenReturn("someRefreshToken");
 
-        AuthResponseDto result = authService.login(loginRequest);
+        AuthTokensDto result = authService.login(loginRequest);
 
         assertThat(result.getAccessToken()).isEqualTo("someAccessToken");
         assertThat(result.getRefreshToken()).isEqualTo("someRefreshToken");
@@ -249,7 +249,7 @@ public class AuthServiceImplTest {
                 .thenReturn(Optional.of(refreshTokenEntity));
         when(jwtService.generateAccessToken(customerEntity)).thenReturn("newAccessToken");
 
-        AuthResponseDto result = authService.refreshToken(refreshTokenRequest);
+        AuthTokensDto result = authService.refreshToken(refreshTokenRequest);
 
         assertThat(result.getAccessToken()).isEqualTo("newAccessToken");
         assertThat(result.getRefreshToken()).isEqualTo("someRefreshToken");

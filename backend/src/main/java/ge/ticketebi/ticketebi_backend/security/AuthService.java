@@ -1,7 +1,7 @@
 package ge.ticketebi.ticketebi_backend.security;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
-import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthResponseDto;
+import ge.ticketebi.ticketebi_backend.domain.dto.auth.AuthTokensDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.LoginRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RefreshTokenRequestDto;
 import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
@@ -9,7 +9,7 @@ import ge.ticketebi.ticketebi_backend.domain.dto.auth.RegisterRequestDto;
 public interface AuthService {
     MessageResponse register(RegisterRequestDto request);
     MessageResponse registerAsOrganizer(RegisterRequestDto request);
-    AuthResponseDto login(LoginRequestDto request);
+    AuthTokensDto login(LoginRequestDto request);
     void logout (RefreshTokenRequestDto request, String username);
-    AuthResponseDto refreshToken(RefreshTokenRequestDto request);
+    AuthTokensDto refreshToken(RefreshTokenRequestDto request);
 }
