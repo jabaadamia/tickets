@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
-import { register } from '@/lib/api/auth';
-import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
+import { registerOrganizer } from '@/lib/api/auth';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -30,7 +29,7 @@ export default function RegisterPage() {
       return
     }
 
-    const res = await register({ username, email, password });
+    const res = await registerOrganizer({ username, email, password });
     if (res.status === 201) {
       alert("verification email sent, please verify before logging in");
       //router.push('/auth/login');
@@ -45,7 +44,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit} 
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Register as organizer</h2>
 
         {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
 
@@ -103,16 +102,10 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          className="w-full mb-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
         >
           Register
         </button>
-
-        <GoogleLoginButton />
-
-        <a href="/auth/register-organizer" className="mt-4 block text-center text-sm text-blue-500">
-          Want to sell tickets? Register as Organizer
-        </a>
       </form>
     </div>
   );

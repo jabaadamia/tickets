@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { MdEmail } from 'react-icons/md';
 import { FaLock } from 'react-icons/fa';
 import { login } from '@/lib/api/auth';
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -68,10 +69,11 @@ export default function LoginPage() {
      
         <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+            className="mb-1 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
         >
             Login
         </button>
+        <GoogleLoginButton />
       </form>
     </div>
   );

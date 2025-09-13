@@ -1,6 +1,6 @@
 import React from "react";
 import { formatDate } from "@/lib/formatters";
-import { Event } from "@/lib/api/events";
+import { Event } from "@/types";
 
 interface EventCardProps {
   event: Event;
@@ -8,7 +8,7 @@ interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
   const imageUrl = event.thumbnailUrl
-    ? `${process.env.IMAGE_BASE_URL}${event.thumbnailUrl}`
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}${event.thumbnailUrl}`
     : undefined;
 
   return (

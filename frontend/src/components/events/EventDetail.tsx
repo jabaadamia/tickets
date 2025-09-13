@@ -1,5 +1,5 @@
 import React from "react";
-import { Event } from "@/lib/api/events";
+import { Event } from "@/types";
 import { formatDate } from "@/lib/formatters";
 import Category from "@/components/Category";
 
@@ -9,7 +9,7 @@ interface EventDetailProps {
 
 export default function EventDetail({ event }: EventDetailProps) {
   const imageUrl = event.thumbnailUrl
-    ? `${process.env.IMAGE_BASE_URL}${event.thumbnailUrl}`
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}${event.thumbnailUrl}`
     : undefined;
 
   const locationUrl = `https://www.google.com/maps/search/?api=1&query=${event.location.latitude},${event.location.longitude}`;
