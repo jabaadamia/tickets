@@ -15,9 +15,12 @@ export const registerOrganizer = async (
   return apiClient.post<string>("/auth/register-organizer", userData);
 };
 
-
 export const login = async (
   userData: LoginRequest
 ): Promise<AxiosResponse<AuthResponse>> => {
   return apiClient.post<AuthResponse>("/auth/login", userData);
 };
+
+export const logout = async (): Promise<AxiosResponse<string>> => {
+  return apiClient.post<string>("/auth/logout");
+}

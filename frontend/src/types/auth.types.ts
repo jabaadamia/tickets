@@ -12,3 +12,11 @@ export interface LoginRequest {
 export interface AuthResponse {
   accessToken: string;
 }
+
+export type AuthContextType = {
+  isLoggedIn: boolean;
+  role: string | null;
+  token: string | null;
+  login: (token: string) => void;
+  logout: () => void;
+};

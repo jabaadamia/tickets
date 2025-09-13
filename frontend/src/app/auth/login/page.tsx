@@ -5,11 +5,13 @@ import { MdEmail } from 'react-icons/md';
 import { FaLock } from 'react-icons/fa';
 import { login } from '@/lib/api/auth';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login: contextLogin } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,7 +21,7 @@ export default function LoginPage() {
     try {
       const res = await login({ email, password });
 
-      localStorage.setItem("accessToken", res.data.accessToken);
+      contextLogin(res.data.accessToken);
 
       router.push("/");
     } catch (err: any) {
