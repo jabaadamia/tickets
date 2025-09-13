@@ -29,17 +29,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String jwt = jwtService.generateAccessToken(user);
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.getWriter().write("""
-            {
-              "token":"%s",
-              "tokenType":"Bearer",
-              "username":"%s",
-              "role":"%s"
-            }
-            """.formatted(jwt, user.getUsername(), user.getRole().name()));
-        response.getWriter().flush();
+        String redirectUrl = "http://localhost:3000/auth/callback"
+                + "?token=" + jwt;
+
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
         clearAuthenticationAttributes(request);
     }
 }
