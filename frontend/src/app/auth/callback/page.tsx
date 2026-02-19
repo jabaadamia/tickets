@@ -9,15 +9,27 @@ export default function AuthCallbackPage() {
   const { login } = useAuth();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const completeLogin = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/auth/refresh-token", {
+          method: "POST",
+          credentials: "include",
+        });
 
-    if (token) {
-      login(token);
+        if (!res.ok) throw new Error("Failed to refresh token");
 
-      router.push("/");
-    }
-  }, [router]);
+        const data = await res.json(); // { accessToken: "..." }
+        if (!data?.accessToken) throw new Error("No access token returned");
+
+        login(data.accessToken);
+        router.replace("/");
+      } catch (error) {
+        router.replace("/auth/login?error=oauth_callback_failed");
+      }
+    };
+
+    void completeLogin();
+  }, [login, router]);
 
   return <p>Signing you in...</p>;
 }
