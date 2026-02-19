@@ -18,7 +18,7 @@ public class RegisterRequestDto {
     @Size(min = 8, max = 64, message = "Password must be between 8–64 characters")
     @Pattern(
             regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$",
-            message = "Password must contain upper, lower, digit, and special char"
+            message = "Password must contain upper, lower and digit"
     )
     private String password;
 

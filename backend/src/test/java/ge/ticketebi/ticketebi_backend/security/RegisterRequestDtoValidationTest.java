@@ -58,7 +58,7 @@ class RegisterRequestDtoValidationTest {
         Set<ConstraintViolation<RegisterRequestDto>> violations = validator.validate(dto);
 
         assertThat(violations).extracting("message")
-                .contains("Password must contain upper, lower, digit, and special char");
+                .contains("Password must contain upper, lower and digit");
     }
 
     @Test
