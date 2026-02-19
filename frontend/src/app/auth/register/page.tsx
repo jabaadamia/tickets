@@ -5,6 +5,7 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import { register } from '@/lib/api/auth';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
+import SubmitButton from '@/components/auth/SubmitButton';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -40,7 +41,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center">
       <form 
         onSubmit={handleSubmit} 
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm"
@@ -101,12 +102,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <button
-          type="submit"
-          className="w-full mb-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-        >
-          Register
-        </button>
+        <SubmitButton str="Register" />
 
         <GoogleLoginButton />
 

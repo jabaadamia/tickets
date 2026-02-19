@@ -6,6 +6,7 @@ import { FaLock } from 'react-icons/fa';
 import { login } from '@/lib/api/auth';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/context/AuthContext';
+import SubmitButton from '@/components/auth/SubmitButton';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm"
@@ -69,12 +70,7 @@ export default function LoginPage() {
           />
         </div>
      
-        <button
-            type="submit"
-            className="mb-1 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-        >
-            Login
-        </button>
+        <SubmitButton str="Login" /> 
         <GoogleLoginButton />
       </form>
     </div>

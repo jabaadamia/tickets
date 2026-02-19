@@ -7,7 +7,7 @@ import Logout from "./auth/Logout";
 export default function Navbar() {
   const { isLoggedIn, role } = useAuth();
   return (
-    <nav className="text-gray-800 p-4 flex justify-between">
+    <nav className="text-PrimaryDark p-4 flex justify-between">
       <Link href="/"><div className="font-bold">TicketPlatform</div></Link>
       <div className="space-x-4">
         {isLoggedIn ?
