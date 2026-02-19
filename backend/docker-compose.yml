@@ -38,6 +38,7 @@ services:
       APP_PASSWORD: ${APP_PASSWORD}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      APP_OAUTH2_REDIRECT_URL: ${APP_OAUTH2_REDIRECT_URL}
     volumes:
       - ./uploads:/app/uploads
     # Production runs JAR

@@ -16,6 +16,7 @@ import ge.ticketebi.ticketebi_backend.repositories.UserRepository;
 import ge.ticketebi.ticketebi_backend.security.jwt.JwtService;
 import ge.ticketebi.ticketebi_backend.security.verification.VerificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -37,6 +39,7 @@ public class AuthServiceImpl implements AuthService{
     private final AuthenticationManager authenticationManager;
     private final Mapper<User, RegisterRequestDto> userMapper;
     private final VerificationService verificationService;
+    @Value("${app.security.jwt.refresh-ttl-days}") private long refreshTtlDays;
 
     public MessageResponse register(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -86,14 +89,7 @@ public class AuthServiceImpl implements AuthService{
         if (!user.isEnabled())
             throw new InvalidRequestException("Please verify your email before logging in");
 
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-
-        // revoke old refresh tokens before storing new
-        refreshTokenRepository.revokeAllForUser(user.getId());
-        saveRefreshToken(refreshToken, user);
-
-        return new AuthTokensDto(accessToken, refreshToken);
+        return issueTokens(user);
     }
 
     @Override
@@ -122,11 +118,22 @@ public class AuthServiceImpl implements AuthService{
         return new AuthTokensDto(newAccessToken, token.getToken());
     }
 
+    @Override
+    public AuthTokensDto issueTokens(User user) {
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        refreshTokenRepository.revokeAllForUser(user.getId());
+        saveRefreshToken(refreshToken, user);
+
+        return new AuthTokensDto(accessToken, refreshToken);
+    }
+
     private RefreshToken saveRefreshToken(String refreshToken, User user) {
         RefreshToken token = RefreshToken.builder()
                 .user(user)
                 .token(refreshToken)
-                .expiresAt(Instant.now().plusSeconds(60 * 60 * 24 * 7)) // 7 days
+                .expiresAt(Instant.now().plus(Duration.ofDays(refreshTtlDays)))
                 .revoked(false)
                 .build();
 
