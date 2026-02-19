@@ -54,7 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/categories/**",
                                 "/api/locations/**",
-                                "api/events/**"
+                                "/api/events/**"
                         ).permitAll()
                         // protected endpoints
                         .anyRequest().authenticated()

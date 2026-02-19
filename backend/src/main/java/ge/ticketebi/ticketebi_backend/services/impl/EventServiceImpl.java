@@ -89,7 +89,7 @@ public class EventServiceImpl implements EventService {
         EventEntity event = eventRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("event not found"));
 
-        if(organizer.getRole().equals(Role.ADMIN) || !event.getOrganizer().getId().equals(organizer.getId()))
+        if(!organizer.getRole().equals(Role.ADMIN) && !event.getOrganizer().getId().equals(organizer.getId()))
             throw new UnauthorizedActionException("You are not allowed to delete this event");
 
         // soft delete
@@ -104,7 +104,7 @@ public class EventServiceImpl implements EventService {
         EventEntity event = eventRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("event not found"));
 
-        if(organizer.getRole().equals(Role.ADMIN) || !event.getOrganizer().getId().equals(organizer.getId()))
+        if(!organizer.getRole().equals(Role.ADMIN) && !event.getOrganizer().getId().equals(organizer.getId()))
             throw new UnauthorizedActionException("You are not allowed to perform update");
 
         if(request.getTitle() != null) {
@@ -146,7 +146,7 @@ public class EventServiceImpl implements EventService {
         EventEntity event = eventRepository.findByIdAndDeletedFalse(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        if(organizer.getRole().equals(Role.ADMIN) || !event.getOrganizer().getId().equals(organizer.getId()))
+        if(!organizer.getRole().equals(Role.ADMIN) && !event.getOrganizer().getId().equals(organizer.getId()))
             throw new UnauthorizedActionException("You are not allowed to update this event");
 
         if (file.isEmpty()) {
