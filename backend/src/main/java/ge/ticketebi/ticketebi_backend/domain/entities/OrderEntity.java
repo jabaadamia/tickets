@@ -2,7 +2,6 @@ package ge.ticketebi.ticketebi_backend.domain.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -41,17 +41,24 @@ public class OrderEntity {
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal subTotalAmount;
 
+    @Column(nullable = false)
+    private String contactEmail;
+
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column
+    private LocalDateTime expiresAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status = OrderStatus.PENDING;
+    @Builder.Default
+    private OrderStatus status = OrderStatus.DRAFT;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false,
@@ -59,7 +66,12 @@ public class OrderEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<TicketEntity> ticketsOrdered;
+    @Builder.Default
+    private List<TicketEntity> ticketsOrdered = new ArrayList<>();
 
 }
