@@ -33,7 +33,7 @@ public class TicketEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String qrCode;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -61,8 +61,11 @@ public class TicketEntity {
     }
 
     public void checkIn() {
-        if(isValid())
-            status = TicketStatus.USED;
+        if (status != TicketStatus.VALID) {
+            throw new IllegalStateException("Ticket already used or invalid");
+        }
+        this.status = TicketStatus.USED;
+        this.checkedInAt = LocalDateTime.now();
     }
 
     public String generateTicketNumber(Long eventId, Long typeId, Long number) {
