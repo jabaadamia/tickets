@@ -2,15 +2,18 @@ package ge.ticketebi.ticketebi_backend.services.impl;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.*;
 import ge.ticketebi.ticketebi_backend.domain.entities.*;
+import ge.ticketebi.ticketebi_backend.domain.events.OrderConfirmedEvent;
 import ge.ticketebi.ticketebi_backend.exceptions.InvalidRequestException;
 import ge.ticketebi.ticketebi_backend.exceptions.ResourceNotFoundException;
 import ge.ticketebi.ticketebi_backend.mappers.Mapper;
 import ge.ticketebi.ticketebi_backend.repositories.OrderRepository;
 import ge.ticketebi.ticketebi_backend.repositories.TicketRepository;
 import ge.ticketebi.ticketebi_backend.repositories.TicketTypeRepository;
+import ge.ticketebi.ticketebi_backend.security.qr.QrTokenService;
 import ge.ticketebi.ticketebi_backend.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,8 @@ public class OrderServiceImpl implements OrderService {
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final Mapper<OrderEntity, OrderResponse> orderMapper;
+    private final QrTokenService qrTokenService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${app.orders.draft-reservation-minutes:10}")
     private long draftReservationMinutes = 10;
@@ -61,10 +66,17 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal subTotal = BigDecimal.ZERO;
         List<OrderItemEntity> orderItems = new ArrayList<>();
+        Long orderEventId = null;
 
         for (Map.Entry<Long, Integer> entry : mergedItems.entrySet()) {
             TicketTypeEntity ticketType = ticketTypeById.get(entry.getKey());
             int quantity = entry.getValue();
+            Long ticketEventId = ticketType.getEvent().getId();
+            if (orderEventId == null) {
+                orderEventId = ticketEventId;
+            } else if (!orderEventId.equals(ticketEventId)) {
+                throw new InvalidRequestException("Order items must belong to the same event");
+            }
 
             validateSaleWindow(now, ticketType);
             if (quantity > ticketType.getMaxPurchase()) {
@@ -138,7 +150,7 @@ public class OrderServiceImpl implements OrderService {
                 ticket.setTicketType(ticketType);
                 ticket.setEmail(order.getContactEmail());
                 ticket.setTicketNumber(generateUniqueTicketNumber(order, ticketType));
-                ticket.setQrCode(generateUniqueQrCode());
+                ticket.setQrCode(qrTokenService.generateForTicket(ticket));
                 tickets.add(ticket);
             }
         }
@@ -150,6 +162,7 @@ public class OrderServiceImpl implements OrderService {
         ticketTypeRepository.saveAll(lockedById.values());
         ticketRepository.saveAll(tickets);
         OrderEntity saved = orderRepository.save(order);
+        eventPublisher.publishEvent(new OrderConfirmedEvent(saved.getId()));
         return orderMapper.mapTo(saved);
     }
 
@@ -274,9 +287,5 @@ public class OrderServiceImpl implements OrderService {
     private String generateUniqueTicketNumber(OrderEntity order, TicketTypeEntity ticketType) {
         return "TKT-" + order.getOrderNumber() + "-" + ticketType.getId() + "-"
                 + UUID.randomUUID().toString().replace("-", "").substring(0, 6).toUpperCase();
-    }
-
-    private String generateUniqueQrCode() {
-        return UUID.randomUUID().toString();
     }
 }

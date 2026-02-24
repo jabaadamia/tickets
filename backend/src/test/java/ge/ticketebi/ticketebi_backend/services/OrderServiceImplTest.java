@@ -10,10 +10,12 @@ import ge.ticketebi.ticketebi_backend.mappers.impl.OrderMapperImpl;
 import ge.ticketebi.ticketebi_backend.repositories.OrderRepository;
 import ge.ticketebi.ticketebi_backend.repositories.TicketRepository;
 import ge.ticketebi.ticketebi_backend.repositories.TicketTypeRepository;
+import ge.ticketebi.ticketebi_backend.security.qr.QrTokenService;
 import ge.ticketebi.ticketebi_backend.services.impl.OrderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.ApplicationEventPublisher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -27,7 +29,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,8 @@ class OrderServiceImplTest {
     @Mock private OrderRepository orderRepository;
     @Mock private TicketRepository ticketRepository;
     @Mock private TicketTypeRepository ticketTypeRepository;
+    @Mock private QrTokenService qrTokenService;
+    @Mock private ApplicationEventPublisher eventPublisher;
     @Spy private OrderMapperImpl orderMapper = new OrderMapperImpl();
 
     @InjectMocks private OrderServiceImpl orderService;
@@ -91,7 +94,6 @@ class OrderServiceImplTest {
                 .thenReturn(List.of());
         when(ticketTypeRepository.findAllByIdInForUpdate(List.of(ticketType.getId())))
                 .thenReturn(List.of(ticketType));
-        lenient().when(orderRepository.findByOrderNumber(anyString())).thenReturn(Optional.empty());
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(invocation -> {
             OrderEntity order = invocation.getArgument(0);
             order.setId(500L);
@@ -128,6 +130,46 @@ class OrderServiceImplTest {
     }
 
     @Test
+    void createDraftOrder_shouldThrow_whenItemsAreFromDifferentEvents() {
+        EventEntity secondEvent = EventEntity.builder()
+                .id(202L)
+                .title("Jazz Night")
+                .date(LocalDateTime.now().plusDays(7))
+                .organizer(User.builder().id(98L).authProvider(AuthProvider.LOCAL).build())
+                .location(LocationEntity.builder().id(2L).name("Arena").build())
+                .build();
+
+        TicketTypeEntity secondType = TicketTypeEntity.builder()
+                .id(2002L)
+                .name("VIP")
+                .price(new BigDecimal("30.00"))
+                .quantityTotal(50)
+                .quantityReserved(0)
+                .quantitySold(0)
+                .maxPurchase(3)
+                .saleStartTime(LocalDateTime.now().minusDays(1))
+                .saleEndTime(LocalDateTime.now().plusDays(1))
+                .event(secondEvent)
+                .build();
+
+        CreateOrderRequest request = CreateOrderRequest.builder()
+                .items(List.of(
+                        CreateOrderItemRequest.builder().ticketTypeId(ticketType.getId()).quantity(1).build(),
+                        CreateOrderItemRequest.builder().ticketTypeId(secondType.getId()).quantity(1).build()
+                ))
+                .build();
+
+        when(orderRepository.findByStatusAndExpiresAtBefore(eq(OrderStatus.DRAFT), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+        when(ticketTypeRepository.findAllByIdInForUpdate(List.of(ticketType.getId(), secondType.getId())))
+                .thenReturn(List.of(ticketType, secondType));
+
+        assertThatThrownBy(() -> orderService.createDraftOrder(request, user))
+                .isInstanceOf(InvalidRequestException.class)
+                .hasMessageContaining("same event");
+    }
+
+    @Test
     void confirmOrder_shouldConsumeReservationAndGenerateTickets() {
         ticketType.setQuantityReserved(2);
 
@@ -157,12 +199,15 @@ class OrderServiceImplTest {
         when(orderRepository.findByIdAndUser(order.getId(), user)).thenReturn(Optional.of(order));
         when(ticketTypeRepository.findAllByIdInForUpdate(List.of(ticketType.getId())))
                 .thenReturn(List.of(ticketType));
+        when(qrTokenService.generateForTicket(any(TicketEntity.class))).thenReturn("qr-1", "qr-2");
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         OrderResponse response = orderService.confirmOrder(order.getId(), user);
 
         assertThat(response.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
         assertThat(response.getTickets()).hasSize(2);
+        assertThat(response.getTickets()).extracting(t -> t.getQrCode())
+                .containsExactlyInAnyOrder("qr-1", "qr-2");
         assertThat(response.getExpiresAt()).isNull();
         assertThat(ticketType.getQuantitySold()).isEqualTo(2);
         assertThat(ticketType.getQuantityReserved()).isEqualTo(0);
