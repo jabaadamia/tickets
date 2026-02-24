@@ -37,4 +37,24 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Long> {
            where t.id = :ticketId and o.user = :user
            """)
     Optional<TicketEntity> findByIdAndUser(@Param("ticketId") Long ticketId, @Param("user") User user);
+
+    @Query("""
+           select t from TicketEntity t
+           join fetch t.ticketType tt
+           join fetch tt.event e
+           join fetch e.organizer
+           join fetch t.order
+           where t.id = :ticketId
+           """)
+    Optional<TicketEntity> findByIdWithDetails(@Param("ticketId") Long ticketId);
+
+    @Query("""
+           select t from TicketEntity t
+           join fetch t.ticketType tt
+           join fetch tt.event e
+           join fetch e.organizer
+           join fetch t.order
+           where t.ticketNumber = :ticketNumber
+           """)
+    Optional<TicketEntity> findByTicketNumberWithDetails(@Param("ticketNumber") String ticketNumber);
 }

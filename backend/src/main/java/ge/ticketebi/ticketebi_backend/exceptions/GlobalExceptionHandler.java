@@ -1,6 +1,7 @@
 package ge.ticketebi.ticketebi_backend.exceptions;
 
 import ge.ticketebi.ticketebi_backend.domain.dto.MessageResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -61,10 +63,16 @@ public class GlobalExceptionHandler {
                 .body(new MessageResponse("Please verify your email before logging in"));
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<MessageResponse> handleRuntime(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(InvalidQrTokenException.class)
+    public ResponseEntity<MessageResponse> handleInvalidQrToken(InvalidQrTokenException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new MessageResponse(ex.getMessage()));
     }
-}
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<MessageResponse> handleRuntime(RuntimeException ex) {
+        log.error("Unhandled runtime exception", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new MessageResponse("Internal server error"));
+    }
+}
