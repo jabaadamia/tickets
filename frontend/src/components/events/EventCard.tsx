@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { formatDate } from "@/lib/formatters";
 import { Event } from "@/types";
 
@@ -17,10 +18,12 @@ export default function EventCard({ event }: EventCardProps) {
         href={`/events/${event.id}`}
         className="mt-2 text-blue-500"
       >
-        {event.thumbnailUrl && (
-          <img
+        {imageUrl && (
+          <Image
             src={imageUrl}
             alt={event.title}
+            width={320}
+            height={160}
             className="rounded mb-2 w-80 h-40 object-cover"
           />
         )}

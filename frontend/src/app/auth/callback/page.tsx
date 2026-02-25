@@ -11,7 +11,12 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const completeLogin = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/auth/refresh-token", {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (!apiUrl) {
+          throw new Error("Missing NEXT_PUBLIC_API_URL");
+        }
+
+        const res = await fetch(`${apiUrl}/auth/refresh-token`, {
           method: "POST",
           credentials: "include",
         });
@@ -23,7 +28,7 @@ export default function AuthCallbackPage() {
 
         login(data.accessToken);
         router.replace("/");
-      } catch (error) {
+      } catch {
         router.replace("/auth/login?error=oauth_callback_failed");
       }
     };

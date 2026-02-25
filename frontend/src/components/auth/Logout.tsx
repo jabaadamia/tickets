@@ -6,14 +6,16 @@ import React from "react";
 
 export default function Logout() {
   const router = useRouter();
-  const { isLoggedIn, role, logout: contextLogout } = useAuth();
+  const { logout: contextLogout } = useAuth();
   
   const handleLogout = async () => {
-    const res = await logout();
-    console.log(res.data);
-    contextLogout();
-    router.push("/");
-  }
+    try {
+      await logout();
+    } finally {
+      contextLogout();
+      router.push("/");
+    }
+  };
 
   return (
     <button

@@ -8,15 +8,28 @@ interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
 }
 
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+interface RefreshSubscriber {
+  resolve: (token: string) => void;
+  reject: (error: Error) => void;
+}
 
-function subscribeTokenRefresh(cb: (token: string) => void): void {
-  refreshSubscribers.push(cb);
+let isRefreshing = false;
+let refreshSubscribers: RefreshSubscriber[] = [];
+
+function subscribeTokenRefresh(
+  resolve: (token: string) => void,
+  reject: (error: Error) => void
+): void {
+  refreshSubscribers.push({ resolve, reject });
 }
 
 function onRefreshed(token: string): void {
-  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers.forEach(({ resolve }) => resolve(token));
+  refreshSubscribers = [];
+}
+
+function onRefreshFailed(error: Error): void {
+  refreshSubscribers.forEach(({ reject }) => reject(error));
   refreshSubscribers = [];
 }
 
@@ -73,12 +86,17 @@ apiClient.interceptors.response.use(
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
-          subscribeTokenRefresh((token: string) => {
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
+          subscribeTokenRefresh(
+            (token: string) => {
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+              }
+              resolve(apiClient(originalRequest));
+            },
+            (refreshError: Error) => {
+              reject(refreshError);
             }
-            resolve(apiClient(originalRequest));
-          });
+          );
         });
       }
 
@@ -116,12 +134,15 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         console.warn("Token refresh failed:", refreshError);
         clearAccessToken();
-        
-        refreshSubscribers.forEach((cb) => cb(""));
-        refreshSubscribers = [];
-        
+
+        const normalizedError =
+          refreshError instanceof Error
+            ? refreshError
+            : new Error("Token refresh failed");
+        onRefreshFailed(normalizedError);
+
         redirectToLogin();
-        return Promise.reject(refreshError);
+        return Promise.reject(normalizedError);
       } finally {
         isRefreshing = false;
       }

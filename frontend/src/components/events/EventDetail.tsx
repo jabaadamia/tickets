@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Event } from "@/types";
 import { formatDate } from "@/lib/formatters";
 import Category from "@/components/Category";
@@ -17,11 +18,13 @@ export default function EventDetail({ event }: EventDetailProps) {
   return (
     <div className="max-w-4/5 mx-auto p-4">
       {imageUrl && (
-      <img
-        src={imageUrl}
-        alt={event.title}
-        className="w-full max-h-64 object-cover rounded mb-4"
-      />
+        <Image
+          src={imageUrl}
+          alt={event.title}
+          width={1200}
+          height={400}
+          className="w-full max-h-64 object-cover rounded mb-4"
+        />
       )}
       <div className="mb-4 flex justify-between">
         <div className="w-4/5 mr-6">
@@ -36,7 +39,7 @@ export default function EventDetail({ event }: EventDetailProps) {
 
         <div className="w-1/5 text-right flex flex-col items-center">
           <p className="text-gray-600 mb-2">{formatDate(event.date)}</p>
-          <a href={locationUrl} target="_blank">
+          <a href={locationUrl} target="_blank" rel="noreferrer">
             <p className="inline text-blue-500">{event.location.name}, {event.location.address}, {event.location.city}</p>
           </a>
           {/* TODO add actual ticket start price */}

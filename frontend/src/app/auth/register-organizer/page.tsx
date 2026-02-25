@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
+import { isAxiosError } from 'axios';
 import { registerOrganizer } from '@/lib/api/auth';
 import SubmitButton from '@/components/auth/SubmitButton';
 
@@ -12,10 +12,10 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -26,16 +26,19 @@ export default function RegisterPage() {
       return;
     }
     if(RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$").test(password) === false) {
-      setError("Password must contain upper, lower, digit, and special char");
+      setError("Password must contain uppercase, lowercase, and a digit");
       return
     }
 
-    const res = await registerOrganizer({ username, email, password });
-    if (res.status === 201) {
+    try {
+      await registerOrganizer({ username, email, password });
       alert("verification email sent, please verify before logging in");
-      //router.push('/auth/login');
-    } else {
-      setError('Registration failed');
+    } catch (err: unknown) {
+      if (isAxiosError<{ message?: string }>(err)) {
+        setError(err.response?.data?.message ?? "Registration failed");
+        return;
+      }
+      setError("Registration failed");
     }
   };
 

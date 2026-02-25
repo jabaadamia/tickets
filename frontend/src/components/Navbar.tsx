@@ -5,7 +5,7 @@ import Link from "next/link";
 import Logout from "./auth/Logout";
 
 export default function Navbar() {
-  const { isLoggedIn, role } = useAuth();
+  const { isLoggedIn } = useAuth();
   return (
     <nav className="text-PrimaryDark p-4 flex justify-between">
       <Link href="/"><div className="font-bold">TicketPlatform</div></Link>

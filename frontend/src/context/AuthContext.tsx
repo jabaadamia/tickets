@@ -10,9 +10,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  const resolveRole = (payload: { roles?: string[]; role?: string } | null): string | null => {
+    if (!payload) return null;
+    if (Array.isArray(payload.roles) && payload.roles.length > 0) {
+      return payload.roles[0];
+    }
+    return payload.role ?? null;
+  };
+
   const decodeToken = (jwt: string) => {
     try {
-      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const base64Url = jwt.split(".")[1];
+      if (!base64Url) return null;
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+      const payload = JSON.parse(atob(padded));
       return payload;
     } catch (e) {
       console.error("Invalid JWT", e);
@@ -26,8 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const payload = decodeToken(storedToken);
       if (payload) {
         setToken(storedToken);
-        const resolvedRole = payload.roles ? payload.roles[0] : null;
-        setRole(resolvedRole);
+        setRole(resolveRole(payload));
         setIsLoggedIn(true);
       }
     }
@@ -37,8 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("accessToken", newToken);
     const payload = decodeToken(newToken);
     setToken(newToken);
-    const resolvedRole = payload?.roles ? payload.roles[0] : payload.role || null;
-    setRole(resolvedRole);
+    setRole(resolveRole(payload));
     setIsLoggedIn(true);
   };
 

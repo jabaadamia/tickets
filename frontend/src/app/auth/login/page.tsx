@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MdEmail } from 'react-icons/md';
 import { FaLock } from 'react-icons/fa';
+import { isAxiosError } from 'axios';
 import { login } from '@/lib/api/auth';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/context/AuthContext';
@@ -25,12 +26,12 @@ export default function LoginPage() {
       contextLogin(res.data.accessToken);
 
       router.push("/");
-    } catch (err: any) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Login failed");
+    } catch (err: unknown) {
+      if (isAxiosError<{ message?: string }>(err)) {
+        setError(err.response?.data?.message ?? "Login failed");
+        return;
       }
+      setError("Login failed");
     }
   };
 
