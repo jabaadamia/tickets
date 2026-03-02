@@ -27,7 +27,7 @@ public class EventRequest {
     private String description;
 
     @FutureOrPresent(message = "Event date must be in the present or future")
-    @JsonFormat(pattern = "yyyy-MM-dd HH")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime date;
 
     private Set<CategoryDto> categories = new HashSet<>();
