@@ -93,4 +93,30 @@ public class EventController {
     ) {
         return ticketTypeService.addTicketType(ticketTypeRequest, id, organizer);
     }
+
+    @GetMapping("/{id}/ticket-types")
+    public ResponseEntity<List<TicketTypeResponse>> getTicketTypesByEvent(@PathVariable Long id) {
+        return ResponseEntity.ok(ticketTypeService.getTicketTypesByEvent(id));
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER') or hasRole('ADMIN')")
+    @PatchMapping("/{eventId}/ticket-types/{ticketTypeId}")
+    public ResponseEntity<TicketTypeResponse> updateTicketType(
+            @PathVariable Long eventId,
+            @PathVariable Long ticketTypeId,
+            @Valid @RequestBody TicketTypeUpdateRequest request,
+            @AuthenticationPrincipal User actor
+    ) {
+        return ResponseEntity.ok(ticketTypeService.updateTicketType(eventId, ticketTypeId, request, actor));
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER') or hasRole('ADMIN')")
+    @DeleteMapping("/{eventId}/ticket-types/{ticketTypeId}")
+    public ResponseEntity<MessageResponse> deleteTicketType(
+            @PathVariable Long eventId,
+            @PathVariable Long ticketTypeId,
+            @AuthenticationPrincipal User actor
+    ) {
+        return ResponseEntity.ok(ticketTypeService.deleteTicketType(eventId, ticketTypeId, actor));
+    }
 }
