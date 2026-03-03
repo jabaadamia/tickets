@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -42,6 +43,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoggedIn(true);
       }
     }
+    setIsAuthInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    const handleForcedLogout = () => {
+      setToken(null);
+      setRole(null);
+      setIsLoggedIn(false);
+      setIsAuthInitialized(true);
+    };
+
+    window.addEventListener("auth:logout", handleForcedLogout);
+    return () => window.removeEventListener("auth:logout", handleForcedLogout);
   }, []);
 
   const login = (newToken: string) => {
@@ -50,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(newToken);
     setRole(resolveRole(payload));
     setIsLoggedIn(true);
+    setIsAuthInitialized(true);
   };
 
   const logout = () => {
@@ -57,10 +72,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setRole(null);
     setIsLoggedIn(false);
+    setIsAuthInitialized(true);
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, token, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthInitialized, isLoggedIn, role, token, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -14,6 +14,7 @@ export interface AuthResponse {
 }
 
 export type AuthContextType = {
+  isAuthInitialized: boolean;
   isLoggedIn: boolean;
   role: string | null;
   token: string | null;

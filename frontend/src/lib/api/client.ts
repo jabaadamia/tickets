@@ -50,6 +50,12 @@ function clearAccessToken(): void {
   }
 }
 
+function notifyAuthLogout(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("auth:logout"));
+  }
+}
+
 function redirectToLogin(): void {
   if (typeof window !== "undefined") {
     window.location.href = "/auth/login";
@@ -66,7 +72,8 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
-    if (token && config.headers) {
+    if (token) {
+      config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -78,11 +85,13 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as ExtendedAxiosRequestConfig;
+    const requestUrl = originalRequest?.url ?? "";
     
     if (
-      error.response?.status === 401 && 
+      (error.response?.status === 401 || error.response?.status === 403) &&
       originalRequest && 
-      !originalRequest._retry
+      !originalRequest._retry &&
+      !requestUrl.includes("/auth/refresh-token")
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -134,6 +143,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         console.warn("Token refresh failed:", refreshError);
         clearAccessToken();
+        notifyAuthLogout();
 
         const normalizedError =
           refreshError instanceof Error

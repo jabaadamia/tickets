@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatDate } from "@/lib/formatters";
 import { Event } from "@/types";
 
@@ -14,7 +15,7 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <div className="rounded-lg p-4 flex flex-col">
-      <a
+      <Link
         href={`/events/${event.id}`}
         className="mt-2 text-blue-500"
       >
@@ -32,7 +33,7 @@ export default function EventCard({ event }: EventCardProps) {
           {formatDate(event.date)}
         </p>
         <p className="text-sm text-blue-500">{event.location.name}</p>
-      </a>
+      </Link>
     </div>
   );
 }

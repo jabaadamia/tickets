@@ -6,6 +6,7 @@ import { isAxiosError } from 'axios';
 import { register } from '@/lib/api/auth';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import SubmitButton from '@/components/auth/SubmitButton';
+import Link from 'next/link';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -109,9 +110,9 @@ export default function RegisterPage() {
 
         <GoogleLoginButton />
 
-        <a href="/auth/register-organizer" className="mt-4 block text-center text-sm text-blue-500">
+        <Link href="/auth/register-organizer" className="mt-4 block text-center text-sm text-blue-500">
           Want to sell tickets? Register as Organizer
-        </a>
+        </Link>
       </form>
     </div>
   );
