@@ -10,7 +10,7 @@ help:
 # --== Development Environment (with Hot Reload) ==--
 # Starts the services using docker-compose.override.yml for hot reloading.
 # Usage:
-#   just dev        - Starts in the foreground (attached).
+#   just dev          - Starts in the foreground (attached).
 #   just dev detached - Starts in the background (detached).
 dev *args:
     @echo "Starting development environment with hot reload..."
@@ -18,10 +18,9 @@ dev *args:
 
 # --== Production Environment ==--
 # Starts the services using ONLY the main docker-compose.yml, simulating production.
-# This will run the pre-built JAR file inside the container.
 # Usage:
-#   just prod         - Starts in the foreground (attached).
-#   just prod detached  - Starts in the background (detached).
+#   just prod          - Starts in the foreground (attached).
+#   just prod detached - Starts in the background (detached).
 prod *args:
     @echo "Starting production-like environment..."
     docker-compose -f docker-compose.yml up --build {{args}}
@@ -33,20 +32,20 @@ down:
     @echo "Stopping and removing containers..."
     docker-compose down
 
-# Follows the logs of all running services.
+# Follows the logs of the backend service.
 logs:
     @echo "Following container logs..."
-    docker-compose logs -f app
+    docker-compose logs -f backend
 
-# just db        - Starts psql shell
+# just db - Starts psql shell
 db:
     @echo "Starting psql shell for tickets db..."
     docker exec -it ticket-platform-db psql -U postgres -d tickets
 
 # Cleans the Maven build directory to prevent "ghost" class file issues.
 clean:
-    @echo "Cleaning Maven target directory..."
-    mvn clean
+    @echo "Cleaning Maven build directory..."
+    cd backend; mvn clean
 
 # A convenient alias to rebuild and restart the dev environment from a clean slate.
 restart: clean dev
