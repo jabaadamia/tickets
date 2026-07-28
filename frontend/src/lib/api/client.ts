@@ -62,12 +62,18 @@ function redirectToLogin(): void {
   }
 }
 
+const apiBaseURL =
+  typeof window === "undefined"
+    ? process.env.NEXT_INTERNAL_API_URL
+    : process.env.NEXT_PUBLIC_API_URL;
+
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: apiBaseURL,
   withCredentials: true,
   timeout: 10000,
 });
 
+console.log("API URL:", apiBaseURL);
 
 apiClient.interceptors.request.use(
   (config) => {
@@ -86,10 +92,10 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as ExtendedAxiosRequestConfig;
     const requestUrl = originalRequest?.url ?? "";
-    
+
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
-      originalRequest && 
+      originalRequest &&
       !originalRequest._retry &&
       !requestUrl.includes("/auth/refresh-token")
     ) {
@@ -113,33 +119,33 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`;
-        
+        const refreshUrl = `${apiBaseURL}/auth/refresh-token`;
+
         const response = await axios.post<RefreshTokenResponse>(
           refreshUrl,
           {},
-          { 
+          {
             withCredentials: true,
             timeout: 5000
           }
         );
 
         const newAccessToken = response.data.accessToken;
-        
+
         if (!newAccessToken) {
           throw new Error("No access token received from refresh endpoint");
         }
 
         setAccessToken(newAccessToken);
-        
+
         onRefreshed(newAccessToken);
-        
+
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
-        
+
         return apiClient(originalRequest);
-        
+
       } catch (refreshError) {
         console.warn("Token refresh failed:", refreshError);
         clearAccessToken();
