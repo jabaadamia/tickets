@@ -1,28 +1,3 @@
-export interface Event {
-  id: number;
-  title: string;
-  description: string;
-  createdAt: string;
-  date: string;
-  thumbnailUrl?: string;
-  organizer: {
-    id: number;
-    username: string;
-    email: string;
-    phoneNumber?: string | null;
-    role: string;
-    createdAt: string;
-  };
-  categories: { name: string }[];
-  location: {
-    name: string;
-    address: string;
-    city: string;
-    latitude: number;
-    longitude: number;
-  };
-}
-
 export interface CategoryDto {
   name: string;
 }
@@ -33,6 +8,27 @@ export interface LocationDto {
   city: string;
   latitude: number;
   longitude: number;
+}
+
+export interface EventOrganizer {
+  id: number;
+  username: string;
+  email: string;
+  phoneNumber?: string | null;
+  role: string;
+  createdAt: string;
+}
+
+export interface Event {
+  id: number;
+  title: string;
+  description: string;
+  createdAt: string;
+  date: string;
+  thumbnailUrl?: string;
+  organizer: EventOrganizer;
+  categories: CategoryDto[];
+  location: LocationDto;
 }
 
 export interface EventRequest {

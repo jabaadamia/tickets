@@ -14,7 +14,7 @@ help:
 #   just dev detached - Starts in the background (detached).
 dev *args:
     @echo "Starting development environment with hot reload..."
-    docker-compose up --build {{args}}
+    docker-compose up {{args}}
 
 # --== Production Environment ==--
 # Starts the services using ONLY the main docker-compose.yml, simulating production.

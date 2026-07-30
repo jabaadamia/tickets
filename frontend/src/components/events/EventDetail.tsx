@@ -1,14 +1,16 @@
 import React from "react";
 import Image from "next/image";
-import { Event } from "@/types";
+import { Event, TicketTypeResponse } from "@/types";
 import { formatDate } from "@/lib/formatters";
 import Category from "@/components/Category";
+import TicketTypeSelector from "@/components/orders/TicketTypeSelector";
 
 interface EventDetailProps {
   event: Event;
+  ticketTypes: TicketTypeResponse[];
 }
 
-export default function EventDetail({ event }: EventDetailProps) {
+export default function EventDetail({ event, ticketTypes }: EventDetailProps) {
   const imageUrl = event.thumbnailUrl
     ? `${process.env.NEXT_PUBLIC_BASE_URL}${event.thumbnailUrl}`
     : undefined;
@@ -40,17 +42,14 @@ export default function EventDetail({ event }: EventDetailProps) {
         <div className="w-1/5 text-right flex flex-col items-center">
           <p className="text-gray-600 mb-2">{formatDate(event.date)}</p>
           <a href={locationUrl} target="_blank" rel="noreferrer">
-            <p className="inline text-blue-500">{event.location.name}, {event.location.address}, {event.location.city}</p>
+            <p className="inline text-blue-500">
+              {event.location.name}, {event.location.address}, {event.location.city}
+            </p>
           </a>
-          {/* TODO add actual ticket start price */}
-          <button className="w-full mt-10 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            100 gel
-          </button>
         </div>
       </div>
-      {/* <div className="text-sm text-gray-600">
-        Organizer: {event.organizer.email}
-      </div> */}
+
+      <TicketTypeSelector ticketTypes={ticketTypes} eventId={event.id} />
     </div>
   );
 }

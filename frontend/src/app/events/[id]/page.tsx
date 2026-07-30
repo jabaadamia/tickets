@@ -1,5 +1,6 @@
 import { getEventById } from "@/lib/api/events";
-import { Event } from "@/types";
+import { getEventTicketTypes } from "@/lib/api/events";
+import { Event, TicketTypeResponse } from "@/types";
 import EventDetail from "@/components/events/EventDetail";
 
 interface PageProps {
@@ -8,10 +9,12 @@ interface PageProps {
 
 export default async function EventPage({ params }: PageProps) {
   let event: Event | null = null;
+  let ticketTypes: TicketTypeResponse[] = [];
   const { id } = await params;
 
   try {
     event = await getEventById(id);
+    ticketTypes = await getEventTicketTypes(id);
   } catch (err) {
     console.error("Failed to fetch event:", err);
   }
@@ -20,5 +23,5 @@ export default async function EventPage({ params }: PageProps) {
     return <p className="text-center mt-8 text-red-500">Event not found</p>;
   }
 
-  return <EventDetail event={event} />;
+  return <EventDetail event={event} ticketTypes={ticketTypes} />;
 }
