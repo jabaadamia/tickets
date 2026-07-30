@@ -12,7 +12,7 @@ interface EventDetailProps {
 
 export default function EventDetail({ event, ticketTypes }: EventDetailProps) {
   const imageUrl = event.thumbnailUrl
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}${event.thumbnailUrl}`
+    ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "")}${event.thumbnailUrl}`
     : undefined;
 
   const locationUrl = `https://www.google.com/maps/search/?api=1&query=${event.location.latitude},${event.location.longitude}`;
@@ -25,6 +25,7 @@ export default function EventDetail({ event, ticketTypes }: EventDetailProps) {
           alt={event.title}
           width={1200}
           height={400}
+          unoptimized
           className="w-full max-h-64 object-cover rounded mb-4"
         />
       )}

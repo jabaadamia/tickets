@@ -172,7 +172,7 @@ export default function OrganizerEventManagePage() {
   };
 
   const imageUrl = event?.thumbnailUrl
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}${event.thumbnailUrl}`
+    ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "")}${event.thumbnailUrl}`
     : undefined;
 
   const locationUrl =
@@ -342,6 +342,7 @@ export default function OrganizerEventManagePage() {
             alt={editable.title || event.title}
             width={1200}
             height={400}
+            unoptimized
             className="w-full max-h-64 object-cover rounded mb-4"
           />
         ) : (

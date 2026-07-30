@@ -10,7 +10,7 @@ interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
   const imageUrl = event.thumbnailUrl
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}${event.thumbnailUrl}`
+    ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "")}${event.thumbnailUrl}`
     : undefined;
 
   return (
@@ -25,6 +25,7 @@ export default function EventCard({ event }: EventCardProps) {
             alt={event.title}
             width={320}
             height={160}
+            unoptimized
             className="rounded mb-2 w-80 h-40 object-cover"
           />
         )}
